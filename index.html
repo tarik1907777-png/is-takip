@@ -3,31 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0F273F">
+<meta name="theme-color" content="#1B1815">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="İş Takip">
 <meta name="mobile-web-app-capable" content="yes">
 <title>İş Takip — Saha ve Proje Yönetimi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0F273F;
-    --bg-2:#0B1E32;
-    --surface:#153152;
-    --surface-2:#1C3D63;
-    --line:#3E77A6;
-    --grid:rgba(142,209,252,0.055);
-    --accent:#8ED1FC;
-    --accent-2:#5FB4E8;
-    --text:#EAF2F8;
-    --text-dim:#93AFC7;
-    --text-faint:#5C7893;
-    --warn:#E8A33D;
-    --danger:#E1604C;
-    --done:#5FAE86;
-    --font-display:'Oswald',sans-serif;
+    --bg:#1B1815;
+    --bg-2:#141210;
+    --surface:#25201B;
+    --surface-2:#332C24;
+    --line:#5A4C3E;
+    --grid:rgba(255,167,92,0.05);
+    --accent:#FF7A33;
+    --accent-2:#FFA35C;
+    --text:#F5EFE6;
+    --text-dim:#BBAE9C;
+    --text-faint:#7A6E60;
+    --warn:#F5C542;
+    --danger:#E1543D;
+    --done:#7DAE6F;
+    --font-display:'Bebas Neue',sans-serif;
     --font-body:'Inter',sans-serif;
     --font-mono:'IBM Plex Mono',monospace;
   }
@@ -35,8 +35,8 @@
   body{
     margin:0;
     background:
-      radial-gradient(ellipse 900px 500px at 20% -10%, rgba(142,209,252,0.10), transparent),
-      radial-gradient(ellipse 700px 400px at 90% 5%, rgba(178,159,222,0.08), transparent),
+      radial-gradient(ellipse 900px 500px at 20% -10%, rgba(255,122,51,0.09), transparent),
+      radial-gradient(ellipse 700px 400px at 90% 5%, rgba(245,197,66,0.07), transparent),
       linear-gradient(var(--grid) 1px, transparent 1px) 0 0/28px 28px,
       linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/28px 28px,
       var(--bg);
@@ -50,8 +50,8 @@
     position:relative;
   }
   .bg-skyline{
-    position:fixed; left:0; right:0; bottom:0; width:100%; height:160px;
-    opacity:0.07; z-index:0; pointer-events:none;
+    position:fixed; left:0; right:0; bottom:0; width:100%; height:230px;
+    opacity:0.14; z-index:0; pointer-events:none;
   }
   .wrap{max-width:1180px;margin:0 auto; position:relative; z-index:1;}
 
@@ -64,15 +64,15 @@
   }
   header::before{
     content:''; position:absolute; top:-20px; left:-14px; right:-14px; height:90px;
-    background:linear-gradient(90deg, rgba(142,209,252,0.12), rgba(178,159,222,0.10), rgba(127,217,160,0.10), transparent);
+    background:linear-gradient(90deg, rgba(255,122,51,0.14), rgba(245,197,66,0.10), rgba(125,174,111,0.08), transparent);
     z-index:-1; pointer-events:none;
   }
   }
-  .h-title{font-family:var(--font-display); font-weight:700; letter-spacing:1.5px;
-    font-size:30px; text-transform:uppercase;
-    background:linear-gradient(90deg, var(--accent), #B49FDE 60%, #7FD9A0);
+  .h-title{font-family:var(--font-display); font-weight:400; letter-spacing:2px;
+    font-size:42px; text-transform:uppercase; line-height:1;
+    background:linear-gradient(90deg, var(--accent), var(--warn) 60%, var(--done));
     -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .h-sub{font-size:13px; color:var(--text-dim); margin-top:4px; letter-spacing:.3px;}
+  .h-sub{font-size:13px; color:var(--text-dim); margin-top:6px; letter-spacing:.3px; font-family:var(--font-body);}
   .titleblock{
     font-family:var(--font-mono); font-size:11px; border:1px solid var(--line);
     display:grid; grid-template-columns:repeat(4,1fr); min-width:400px;
@@ -107,8 +107,8 @@
 
   /* SECTION LABELS */
   .section-label{
-    font-family:var(--font-display); text-transform:uppercase; letter-spacing:1.5px;
-    font-size:13px; color:var(--accent); margin:30px 0 14px; display:flex; align-items:center; gap:10px;
+    font-family:var(--font-display); text-transform:uppercase; letter-spacing:2px;
+    font-size:17px; color:var(--accent); margin:30px 0 14px; display:flex; align-items:center; gap:10px;
   }
   .section-label::before{content:''; width:18px; height:2px; background:var(--accent); display:inline-block;}
   .chevron{font-size:20px; font-weight:700; color:var(--text-dim); transition:transform .15s; display:inline-block; line-height:1;}
@@ -189,9 +189,9 @@
     width:36px; height:36px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
     font-family:var(--font-mono); font-size:10px; font-weight:700; border:1px solid var(--line); border-radius:2px;
   }
-  .doc-icon.pdf{color:#E1604C; border-color:#E1604C;}
-  .doc-icon.word{color:#5FB4E8; border-color:#5FB4E8;}
-  .doc-icon.excel{color:#5FAE86; border-color:#5FAE86;}
+  .doc-icon.pdf{color:#E1543D; border-color:#E1543D;}
+  .doc-icon.word{color:#5C8AA8; border-color:#5C8AA8;}
+  .doc-icon.excel{color:#7DAE6F; border-color:#7DAE6F;}
   .doc-icon.other{color:var(--text-dim);}
   .doc-info{flex:1; min-width:0;}
   .doc-name{font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -222,7 +222,7 @@
   @media (max-width:640px){
     body{padding:14px 10px 90px;}
     header{gap:14px;}
-    .h-title{font-size:24px;}
+    .h-title{font-size:32px;}
     .titleblock{min-width:0; width:100%; grid-template-columns:repeat(2,1fr);}
     .toolbar{gap:8px;}
     .toolbar button{flex:1 1 auto;}
@@ -247,22 +247,56 @@
 </style>
 </head>
 <body>
-<svg class="bg-skyline" viewBox="0 0 1400 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="40" y="90" width="70" height="130" fill="#8ED1FC"/>
-  <rect x="120" y="60" width="55" height="160" fill="#F2B84B"/>
-  <rect x="185" y="110" width="90" height="110" fill="#B49FDE"/>
-  <rect x="290" y="40" width="60" height="180" fill="#7FD9A0"/>
-  <rect x="365" y="130" width="120" height="90" fill="#6FD6D6"/>
-  <rect x="500" y="70" width="65" height="150" fill="#F2955A"/>
-  <rect x="580" y="100" width="80" height="120" fill="#8ED1FC"/>
-  <rect x="675" y="50" width="55" height="170" fill="#E091C2"/>
-  <rect x="745" y="120" width="100" height="100" fill="#9FD15C"/>
-  <rect x="860" y="80" width="70" height="140" fill="#F2B84B"/>
-  <rect x="945" y="110" width="90" height="110" fill="#7FA8F2"/>
-  <rect x="1050" y="60" width="60" height="160" fill="#B49FDE"/>
-  <rect x="1125" y="100" width="110" height="120" fill="#8ED1FC"/>
-  <rect x="1250" y="70" width="65" height="150" fill="#F2955A"/>
-  <rect x="1330" y="120" width="70" height="100" fill="#6FD6D6"/>
+<svg class="bg-skyline" viewBox="0 0 1400 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="hazardTape" width="22" height="22" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <rect width="22" height="22" fill="#2E2822"/>
+      <rect width="11" height="22" fill="#FF7A33"/>
+    </pattern>
+  </defs>
+
+  <!-- background structures under construction -->
+  <rect x="30" y="150" width="90" height="120" fill="#2E2822"/>
+  <rect x="140" y="105" width="65" height="165" fill="#332C24"/>
+  <rect x="225" y="170" width="110" height="100" fill="#25201B"/>
+  <g stroke="#5A4C3E" stroke-width="2">
+    <line x1="225" y1="170" x2="335" y2="270"/>
+    <line x1="335" y1="170" x2="225" y2="270"/>
+    <line x1="225" y1="205" x2="335" y2="205"/>
+    <line x1="225" y1="240" x2="335" y2="240"/>
+  </g>
+  <rect x="1020" y="130" width="85" height="140" fill="#332C24"/>
+  <rect x="1120" y="175" width="120" height="95" fill="#2E2822"/>
+  <rect x="1260" y="110" width="70" height="160" fill="#25201B"/>
+  <g stroke="#5A4C3E" stroke-width="2">
+    <line x1="1120" y1="175" x2="1240" y2="270"/>
+    <line x1="1240" y1="175" x2="1120" y2="270"/>
+  </g>
+
+  <!-- tower crane -->
+  <rect x="775" y="15" width="10" height="255" fill="#5A4C3E"/>
+  <rect x="750" y="266" width="60" height="10" fill="#5A4C3E"/>
+  <rect x="655" y="16" width="130" height="7" fill="#5A4C3E"/>
+  <rect x="785" y="16" width="300" height="7" fill="#5A4C3E"/>
+  <rect x="648" y="6" width="35" height="26" fill="#3A322A"/>
+  <rect x="768" y="24" width="30" height="20" fill="#4A4038"/>
+  <line x1="700" y1="23" x2="785" y2="60" stroke="#5A4C3E" stroke-width="2"/>
+  <line x1="900" y1="23" x2="785" y2="70" stroke="#5A4C3E" stroke-width="2"/>
+
+  <g id="craneHook">
+    <line x1="1005" y1="23" x2="1005" y2="150" stroke="#7A6E60" stroke-width="2"/>
+    <rect x="993" y="150" width="24" height="16" fill="#FF7A33"/>
+    <animateTransform attributeName="transform" type="rotate" values="-4 1005 23; 4 1005 23; -4 1005 23" dur="6s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- safety cones -->
+  <polygon points="90,270 100,244 110,270" fill="#FF7A33"/>
+  <polygon points="500,270 510,244 520,270" fill="#FF7A33"/>
+  <polygon points="900,270 910,244 920,270" fill="#FF7A33"/>
+  <polygon points="1350,270 1360,244 1370,270" fill="#FF7A33"/>
+
+  <!-- hazard stripe ground line -->
+  <rect x="0" y="271" width="1400" height="9" fill="url(#hazardTape)"/>
 </svg>
 <div class="wrap">
 
@@ -412,7 +446,7 @@ let selectedProjectId = null;
 const uid = () => Math.random().toString(36).slice(2,10);
 const todayStr = () => new Date().toISOString().slice(0,10);
 
-const PROJECT_PALETTE = ['#8ED1FC','#F2B84B','#B49FDE','#7FD9A0','#F2955A','#6FD6D6','#E091C2','#9FD15C','#F28FA0','#7FA8F2'];
+const PROJECT_PALETTE = ['#FF7A33','#F5C542','#7DAE6F','#C77D4A','#9A8F7A','#5C8AA8','#D97A9C','#9AA84A','#B0522D','#E0A458'];
 function projectColor(projectId){
   if(!projectId) return 'var(--accent)';
   let h = 0;
