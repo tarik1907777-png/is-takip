@@ -128,16 +128,16 @@
   }
   .proj-card:hover{background:var(--surface-2); transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.25);}
   .proj-card.selected{border-left-color:var(--warn); background:var(--surface-2);}
-  .proj-name{font-weight:700; font-size:14.5px; margin-bottom:2px;}
-  .proj-site{font-size:12px; color:var(--text-dim); margin-bottom:10px;}
-  .proj-meta{display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px;}
-  .status-badge{padding:2px 8px; border-radius:2px; font-size:10px; letter-spacing:.5px; text-transform:uppercase; font-family:var(--font-body); font-weight:700;}
+  .proj-name{font-weight:700; font-size:17px; margin-bottom:4px; letter-spacing:.2px;}
+  .proj-site{font-size:11px; color:var(--text-faint); margin-bottom:12px; letter-spacing:.2px;}
+  .proj-meta{display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:10px;}
+  .status-badge{padding:2px 8px; border-radius:2px; font-size:9px; letter-spacing:.5px; text-transform:uppercase; font-family:var(--font-body); font-weight:700;}
   .status-aktif{background:rgba(95,180,232,.18); color:var(--accent);}
   .status-beklemede{background:rgba(232,163,61,.18); color:var(--warn);}
   .status-tamamlandi{background:rgba(95,174,134,.18); color:var(--done);}
   .proj-del{position:absolute; top:8px; right:8px; opacity:0; font-size:11px; color:var(--danger); background:none; border:none; padding:2px 6px;}
   .proj-card:hover .proj-del{opacity:1;}
-  .task-count{color:var(--text-dim);}
+  .task-count{color:var(--text-faint);}
 
   /* TASK LIST */
   .task-list{display:flex; flex-direction:column; gap:8px;}
@@ -409,7 +409,7 @@ let selectedProjectId = null;
 const uid = () => Math.random().toString(36).slice(2,10);
 const todayStr = () => new Date().toISOString().slice(0,10);
 
-const PROJECT_PALETTE = ['#FF7A33','#F5C542','#7DAE6F','#C77D4A','#9A8F7A','#5C8AA8','#D97A9C','#9AA84A','#B0522D','#E0A458'];
+const PROJECT_PALETTE = ['#FF8C42','#F5C542','#7DC98A','#4FD1C5','#5C9EE8','#B48EF2','#F472B6'];
 function projectColor(projectId){
   if(!projectId) return 'var(--accent)';
   let h = 0;
