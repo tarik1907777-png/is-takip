@@ -67,6 +67,11 @@
   }
   @keyframes glowPulse{ 0%,100%{opacity:1;} 50%{opacity:0.55;} }
   @keyframes fadeInUp{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .h-overline{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:4px; text-transform:uppercase;
+    color:var(--accent); margin-bottom:6px; display:flex; align-items:center; gap:8px;
+  }
+  .h-overline::before{content:''; width:22px; height:1.5px; background:var(--accent); display:inline-block;}
   .h-title{font-family:var(--font-display); font-weight:400; letter-spacing:2px;
     font-size:42px; text-transform:uppercase; line-height:1;
     background:linear-gradient(90deg, var(--accent), var(--warn) 60%, var(--done));
@@ -259,8 +264,9 @@
 
   <header>
     <div>
+      <div class="h-overline">Tarık Yavuz</div>
       <div class="h-title">İş Takip</div>
-      <div class="h-sub">Saha ve Proje Yönetimi — Tarik</div>
+      <div class="h-sub">Saha ve Proje Yönetimi</div>
     </div>
     <div class="titleblock" id="titleblock"></div>
   </header>
