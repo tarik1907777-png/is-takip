@@ -34,6 +34,25 @@
     --font-body:'Inter',sans-serif;
     --font-mono:'IBM Plex Mono',monospace;
   }
+  html[data-theme="light"]{
+    --bg:#F7F5F0;
+    --bg-2:#EDE9E1;
+    --surface:#FFFFFF;
+    --surface-2:#F3EFE7;
+    --line:#DCD5C7;
+    --grid:rgba(20,20,20,0.04);
+    --accent:#E86A1C;
+    --accent-2:#D45E17;
+    --text:#1E1B17;
+    --text-dim:#5C5548;
+    --text-faint:#8A8272;
+    --warn:#B8860F;
+    --danger:#C2361F;
+    --done:#2F7A3D;
+  }
+  html[data-theme="light"] body{
+    background: var(--bg);
+  }
   *{box-sizing:border-box;}
   body{
     margin:0;
@@ -277,6 +296,7 @@
     <div class="spacer"></div>
     <span id="cloudStatus" style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">☁ Bağlanıyor…</span>
     <span id="saveIndicator" style="font-family:var(--font-mono);font-size:11px;color:var(--done);opacity:0;transition:opacity .3s;">Kaydedildi ✓</span>
+    <button class="small ghost" id="btnThemeToggle" title="Açık/Koyu tema">🌙 Koyu</button>
     <button class="small ghost" id="btnExport" title="Verileri JSON dosyası olarak indir">⇩ Yedekle</button>
     <button class="small ghost" id="btnImport" title="Yedek dosyasından geri yükle">⇧ Geri Yükle</button>
     <input type="file" id="fileImport" accept="application/json" style="display:none;">
@@ -1167,6 +1187,22 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').catch(()=>{ /* offline caching unavailable, app still works online */ });
   });
 }
+
+// Theme toggle (personal UI preference, stored locally only)
+const THEME_KEY = 'is-takip:ui:theme';
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('btnThemeToggle');
+  if(btn) btn.textContent = theme === 'light' ? '☀️ Açık' : '🌙 Koyu';
+  try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+}
+let savedTheme = 'dark';
+try{ savedTheme = localStorage.getItem(THEME_KEY) || 'dark'; }catch(e){}
+applyTheme(savedTheme);
+document.getElementById('btnThemeToggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+});
 
 (async function init(){
   await loadData();
