@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="İş Takip">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>İş Takip — Saha ve Proje Yönetimi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1138,6 +1141,12 @@ setupCollapsible('projects', 'lblProjects', 'projGrid', 'chevProjects');
 setupCollapsible('tasks', 'taskSectionLabel', 'taskList', 'chevTasks');
 setupCollapsible('gallery', 'lblGallery', 'galleryGrid', 'chevGallery');
 setupCollapsible('docs', 'lblDocs', 'docList', 'chevDocs');
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* offline caching unavailable, app still works online */ });
+  });
+}
 
 (async function init(){
   await loadData();
