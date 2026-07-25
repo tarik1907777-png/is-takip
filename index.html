@@ -74,7 +74,7 @@
   .h-sub{font-size:13px; color:var(--text-dim); margin-top:6px; letter-spacing:.3px; font-family:var(--font-body);}
   .titleblock{
     font-family:var(--font-mono); font-size:11px; border:1px solid var(--line);
-    display:grid; grid-template-columns:repeat(4,1fr); min-width:400px;
+    display:grid; grid-template-columns:repeat(5,1fr); min-width:480px;
   }
   .tb-cell{padding:7px 12px; border-right:1px solid var(--line);}
   .tb-cell:last-child{border-right:none;}
@@ -231,7 +231,7 @@
     body{padding:14px 10px 90px;}
     header{gap:14px;}
     .h-title{font-size:32px;}
-    .titleblock{min-width:0; width:100%; grid-template-columns:repeat(2,1fr);}
+    .titleblock{min-width:0; width:100%; grid-template-columns:repeat(3,1fr);}
     .toolbar{gap:8px;}
     .toolbar button{flex:1 1 auto;}
     #saveIndicator{order:99; width:100%; text-align:center;}
@@ -640,12 +640,14 @@ function renderTitleBlock(){
     const d = daysUntil(t.due);
     return d>=0 && d<=7;
   }).length;
+  const completed = tasks.filter(t=>t.status==='Tamamlandı').length;
   const now = new Date();
   const dateStr = now.toLocaleDateString('tr-TR');
   document.getElementById('titleblock').innerHTML = `
     <div class="tb-cell"><span class="tb-label">Aktif Proje</span><span class="tb-val">${activeCount}</span></div>
     <div class="tb-cell"><span class="tb-label">7 Gün İçinde</span><span class="tb-val warn">${dueSoon}</span></div>
     <div class="tb-cell"><span class="tb-label">Gecikmiş</span><span class="tb-val danger">${overdue}</span></div>
+    <div class="tb-cell"><span class="tb-label">Tamamlanan</span><span class="tb-val" style="color:var(--done)">${completed}</span></div>
     <div class="tb-cell"><span class="tb-label">Tarih</span><span class="tb-val" style="color:var(--text)">${dateStr}</span></div>
   `;
 }
