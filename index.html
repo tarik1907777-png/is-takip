@@ -213,6 +213,7 @@
     <button class="primary" id="btnNewTask">+ Yeni Görev</button>
     <button id="btnNewProject">+ Yeni Proje</button>
     <div class="spacer"></div>
+    <span id="cloudStatus" style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">☁ Bağlanıyor…</span>
     <span id="saveIndicator" style="font-family:var(--font-mono);font-size:11px;color:var(--done);opacity:0;transition:opacity .3s;">Kaydedildi ✓</span>
     <button class="small ghost" id="btnExport" title="Verileri JSON dosyası olarak indir">⇩ Yedekle</button>
     <button class="small ghost" id="btnImport" title="Yedek dosyasından geri yükle">⇧ Geri Yükle</button>
@@ -400,19 +401,85 @@ async function storageSet(key, value){
   return ok;
 }
 
+const FIREBASE_URL = 'https://is-takip-76fa4-default-rtdb.europe-west1.firebasedatabase.app';
+let lastSyncedAt = 0;
+let syncPollTimer = null;
+
+async function cloudPull(){
+  try{
+    const res = await fetch(FIREBASE_URL + '/data.json');
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){ return null; }
+}
+async function cloudPush(){
+  try{
+    const payload = { projects, tasks, siteImages, updatedAt: Date.now() };
+    const res = await fetch(FIREBASE_URL + '/data.json', {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(res.ok){ lastSyncedAt = payload.updatedAt; setCloudStatus('ok'); }
+    else{ setCloudStatus('err'); }
+  }catch(e){ setCloudStatus('err'); }
+}
+function setCloudStatus(state){
+  const el = document.getElementById('cloudStatus');
+  if(!el) return;
+  if(state==='ok'){ el.textContent='☁ Senkronize'; el.style.color='var(--done)'; }
+  else if(state==='err'){ el.textContent='☁ Bağlantı yok (yerel kayıtlı)'; el.style.color='var(--warn)'; }
+  else{ el.textContent='☁ Senkronize ediliyor…'; el.style.color='var(--text-dim)'; }
+}
+
 async function loadData(){
+  setCloudStatus('syncing');
+  const cloud = await cloudPull();
+  if(cloud && (cloud.projects || cloud.tasks)){
+    projects = cloud.projects || [];
+    tasks = cloud.tasks || [];
+    siteImages = cloud.siteImages || [];
+    lastSyncedAt = cloud.updatedAt || Date.now();
+    await storageSet('projects', JSON.stringify(projects));
+    await storageSet('tasks', JSON.stringify(tasks));
+    await storageSet('siteImages', JSON.stringify(siteImages));
+    setCloudStatus('ok');
+    startCloudPolling();
+    return;
+  }
+  setCloudStatus('err');
   const p = await storageGet('projects');
   const t = await storageGet('tasks');
   const g = await storageGet('siteImages');
   try{ projects = p ? JSON.parse(p) : null; }catch(e){ projects = null; }
   try{ tasks = t ? JSON.parse(t) : null; }catch(e){ tasks = null; }
   try{ siteImages = g ? JSON.parse(g) : []; }catch(e){ siteImages = []; }
-  if(!projects || !tasks){ seedData(); await saveAll(); }
+  if(!projects || !tasks){ seedData(); }
+  await saveAll();
+  startCloudPolling();
 }
-async function saveProjects(){ await storageSet('projects', JSON.stringify(projects)); flashSaved(); }
-async function saveTasks(){ await storageSet('tasks', JSON.stringify(tasks)); flashSaved(); }
-async function saveSiteImages(){ await storageSet('siteImages', JSON.stringify(siteImages)); flashSaved(); }
-async function saveAll(){ await saveProjects(); await saveTasks(); await saveSiteImages(); }
+function startCloudPolling(){
+  if(syncPollTimer) return;
+  syncPollTimer = setInterval(async ()=>{
+    const cloud = await cloudPull();
+    if(cloud && cloud.updatedAt && cloud.updatedAt > lastSyncedAt){
+      projects = cloud.projects || [];
+      tasks = cloud.tasks || [];
+      siteImages = cloud.siteImages || [];
+      lastSyncedAt = cloud.updatedAt;
+      await storageSet('projects', JSON.stringify(projects));
+      await storageSet('tasks', JSON.stringify(tasks));
+      await storageSet('siteImages', JSON.stringify(siteImages));
+      setCloudStatus('ok');
+      renderAll();
+    }
+  }, 20000);
+}
+
+async function saveProjects(){ await storageSet('projects', JSON.stringify(projects)); await cloudPush(); flashSaved(); }
+async function saveTasks(){ await storageSet('tasks', JSON.stringify(tasks)); await cloudPush(); flashSaved(); }
+async function saveSiteImages(){ await storageSet('siteImages', JSON.stringify(siteImages)); await cloudPush(); flashSaved(); }
+async function saveAll(){ await storageSet('projects', JSON.stringify(projects)); await storageSet('tasks', JSON.stringify(tasks)); await storageSet('siteImages', JSON.stringify(siteImages)); await cloudPush(); flashSaved(); }
 
 let saveTimer=null;
 function flashSaved(){
