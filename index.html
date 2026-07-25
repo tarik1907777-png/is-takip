@@ -13,20 +13,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#1B1815;
-    --bg-2:#141210;
-    --surface:#25201B;
-    --surface-2:#332C24;
-    --line:#5A4C3E;
-    --grid:rgba(255,167,92,0.05);
-    --accent:#FF7A33;
-    --accent-2:#FFA35C;
-    --text:#F5EFE6;
-    --text-dim:#BBAE9C;
-    --text-faint:#7A6E60;
+    --bg:#0C1B2E;
+    --bg-2:#081422;
+    --surface:#132A45;
+    --surface-2:#1B3A5C;
+    --line:#2E5478;
+    --grid:rgba(255,255,255,0.045);
+    --accent:#FF8C42;
+    --accent-2:#FFA968;
+    --text:#FFFFFF;
+    --text-dim:#C7D6E8;
+    --text-faint:#7C93AD;
     --warn:#F5C542;
-    --danger:#E1543D;
-    --done:#7DAE6F;
+    --danger:#F2604A;
+    --done:#7DC98A;
     --font-display:'Bebas Neue',sans-serif;
     --font-body:'Inter',sans-serif;
     --font-mono:'IBM Plex Mono',monospace;
@@ -50,8 +50,8 @@
     position:relative;
   }
   .bg-skyline{
-    position:fixed; left:0; right:0; bottom:0; width:100%; height:230px;
-    opacity:0.14; z-index:0; pointer-events:none;
+    position:fixed; left:0; right:0; bottom:0; width:100%; height:340px;
+    opacity:0.22; z-index:0; pointer-events:none;
   }
   .wrap{max-width:1180px;margin:0 auto; position:relative; z-index:1;}
 
@@ -155,9 +155,9 @@
   .del-btn{background:none; border:none; color:var(--text-faint); font-size:16px; padding:0 4px;}
   .del-btn:hover{color:var(--danger); background:none;}
   .task-title-wrap{display:flex; align-items:center; gap:10px;}
-  .thumb{width:34px; height:34px; object-fit:cover; border:1px solid var(--line); cursor:pointer; flex-shrink:0; border-radius:2px;}
+  .thumb{width:44px; height:44px; object-fit:cover; border:1px solid var(--line); cursor:pointer; flex-shrink:0; border-radius:2px;}
   .thumb:hover{border-color:var(--accent);}
-  .cam-btn{background:none; border:1px solid var(--line); color:var(--text-faint); width:34px; height:34px; flex-shrink:0; border-radius:2px; font-size:14px; padding:0; display:flex; align-items:center; justify-content:center;}
+  .cam-btn{background:none; border:1px solid var(--line); color:var(--text-faint); width:44px; height:44px; flex-shrink:0; border-radius:2px; font-size:17px; padding:0; display:flex; align-items:center; justify-content:center;}
   .cam-btn:hover{border-color:var(--accent); color:var(--accent);}
   .lightbox-overlay{position:fixed; inset:0; background:rgba(5,15,26,.88); display:none; align-items:center; justify-content:center; z-index:60; padding:30px;}
   .lightbox-overlay.open{display:flex;}
@@ -166,9 +166,9 @@
   .img-preview{width:70px; height:70px; object-fit:cover; border:1px solid var(--line); margin-top:6px; display:none;}
 
   /* GALLERY */
-  .gallery-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px;}
+  .gallery-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px;}
   .gallery-card{background:var(--surface); border:1px solid var(--line); overflow:hidden; position:relative;}
-  .gallery-thumb{width:100%; height:130px; object-fit:cover; cursor:pointer; display:block;}
+  .gallery-thumb{width:100%; height:210px; object-fit:cover; cursor:pointer; display:block;}
   .gallery-info{padding:8px 10px;}
   .gallery-date{font-family:var(--font-mono); font-size:10.5px; color:var(--accent);}
   .gallery-project{font-size:11px; color:var(--text-dim); margin-top:2px;}
@@ -236,7 +236,7 @@
       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     }
     .due{margin-left:auto;}
-    .gallery-grid{grid-template-columns:repeat(2,1fr);}
+    .gallery-grid{grid-template-columns:1fr;}
     .modal{
       position:fixed; inset:auto 0 0 0; width:100%; max-width:100%;
       border-left:none; border-right:none; border-bottom:none;
@@ -250,50 +250,50 @@
 <svg class="bg-skyline" viewBox="0 0 1400 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <pattern id="hazardTape" width="22" height="22" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-      <rect width="22" height="22" fill="#2E2822"/>
-      <rect width="11" height="22" fill="#FF7A33"/>
+      <rect width="22" height="22" fill="#132A45"/>
+      <rect width="11" height="22" fill="#FF8C42"/>
     </pattern>
   </defs>
 
   <!-- background structures under construction -->
-  <rect x="30" y="150" width="90" height="120" fill="#2E2822"/>
-  <rect x="140" y="105" width="65" height="165" fill="#332C24"/>
-  <rect x="225" y="170" width="110" height="100" fill="#25201B"/>
-  <g stroke="#5A4C3E" stroke-width="2">
+  <rect x="30" y="150" width="90" height="120" fill="#132A45"/>
+  <rect x="140" y="105" width="65" height="165" fill="#1B3A5C"/>
+  <rect x="225" y="170" width="110" height="100" fill="#0F2238"/>
+  <g stroke="#2E5478" stroke-width="2">
     <line x1="225" y1="170" x2="335" y2="270"/>
     <line x1="335" y1="170" x2="225" y2="270"/>
     <line x1="225" y1="205" x2="335" y2="205"/>
     <line x1="225" y1="240" x2="335" y2="240"/>
   </g>
-  <rect x="1020" y="130" width="85" height="140" fill="#332C24"/>
-  <rect x="1120" y="175" width="120" height="95" fill="#2E2822"/>
-  <rect x="1260" y="110" width="70" height="160" fill="#25201B"/>
-  <g stroke="#5A4C3E" stroke-width="2">
+  <rect x="1020" y="130" width="85" height="140" fill="#1B3A5C"/>
+  <rect x="1120" y="175" width="120" height="95" fill="#132A45"/>
+  <rect x="1260" y="110" width="70" height="160" fill="#0F2238"/>
+  <g stroke="#2E5478" stroke-width="2">
     <line x1="1120" y1="175" x2="1240" y2="270"/>
     <line x1="1240" y1="175" x2="1120" y2="270"/>
   </g>
 
   <!-- tower crane -->
-  <rect x="775" y="15" width="10" height="255" fill="#5A4C3E"/>
-  <rect x="750" y="266" width="60" height="10" fill="#5A4C3E"/>
-  <rect x="655" y="16" width="130" height="7" fill="#5A4C3E"/>
-  <rect x="785" y="16" width="300" height="7" fill="#5A4C3E"/>
-  <rect x="648" y="6" width="35" height="26" fill="#3A322A"/>
-  <rect x="768" y="24" width="30" height="20" fill="#4A4038"/>
-  <line x1="700" y1="23" x2="785" y2="60" stroke="#5A4C3E" stroke-width="2"/>
-  <line x1="900" y1="23" x2="785" y2="70" stroke="#5A4C3E" stroke-width="2"/>
+  <rect x="775" y="15" width="10" height="255" fill="#2E5478"/>
+  <rect x="750" y="266" width="60" height="10" fill="#2E5478"/>
+  <rect x="655" y="16" width="130" height="7" fill="#2E5478"/>
+  <rect x="785" y="16" width="300" height="7" fill="#2E5478"/>
+  <rect x="648" y="6" width="35" height="26" fill="#1B3A5C"/>
+  <rect x="768" y="24" width="30" height="20" fill="#264C70"/>
+  <line x1="700" y1="23" x2="785" y2="60" stroke="#2E5478" stroke-width="2"/>
+  <line x1="900" y1="23" x2="785" y2="70" stroke="#2E5478" stroke-width="2"/>
 
   <g id="craneHook">
-    <line x1="1005" y1="23" x2="1005" y2="150" stroke="#7A6E60" stroke-width="2"/>
-    <rect x="993" y="150" width="24" height="16" fill="#FF7A33"/>
+    <line x1="1005" y1="23" x2="1005" y2="150" stroke="#7C93AD" stroke-width="2"/>
+    <rect x="993" y="150" width="24" height="16" fill="#FF8C42"/>
     <animateTransform attributeName="transform" type="rotate" values="-4 1005 23; 4 1005 23; -4 1005 23" dur="6s" repeatCount="indefinite"/>
   </g>
 
   <!-- safety cones -->
-  <polygon points="90,270 100,244 110,270" fill="#FF7A33"/>
-  <polygon points="500,270 510,244 520,270" fill="#FF7A33"/>
-  <polygon points="900,270 910,244 920,270" fill="#FF7A33"/>
-  <polygon points="1350,270 1360,244 1370,270" fill="#FF7A33"/>
+  <polygon points="90,270 100,244 110,270" fill="#FF8C42"/>
+  <polygon points="500,270 510,244 520,270" fill="#FF8C42"/>
+  <polygon points="900,270 910,244 920,270" fill="#FF8C42"/>
+  <polygon points="1350,270 1360,244 1370,270" fill="#FF8C42"/>
 
   <!-- hazard stripe ground line -->
   <rect x="0" y="271" width="1400" height="9" fill="url(#hazardTape)"/>
