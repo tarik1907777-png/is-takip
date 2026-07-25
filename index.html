@@ -159,6 +159,29 @@
   .file-hint{font-size:11px; color:var(--text-faint); margin-top:4px;}
   .multi-preview{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
   .multi-preview img{width:56px; height:56px; object-fit:cover; border:1px solid var(--line);}
+
+  /* DOCUMENTS */
+  .doc-list{display:flex; flex-direction:column; gap:8px;}
+  .doc-row{
+    display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line);
+    padding:11px 14px;
+  }
+  .doc-icon{
+    width:36px; height:36px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:10px; font-weight:700; border:1px solid var(--line); border-radius:2px;
+  }
+  .doc-icon.pdf{color:#E1604C; border-color:#E1604C;}
+  .doc-icon.word{color:#5FB4E8; border-color:#5FB4E8;}
+  .doc-icon.excel{color:#5FAE86; border-color:#5FAE86;}
+  .doc-icon.other{color:var(--text-dim);}
+  .doc-info{flex:1; min-width:0;}
+  .doc-name{font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .doc-meta{font-size:11px; color:var(--text-dim); font-family:var(--font-mono); margin-top:2px;}
+  .doc-note{font-size:12px; color:var(--text-dim); margin-top:2px;}
+  .doc-actions{display:flex; gap:6px; align-items:center; flex-shrink:0;}
+  .doc-download{font-size:12px; padding:6px 10px; border:1px solid var(--line); color:var(--text); text-decoration:none; border-radius:2px; white-space:nowrap; display:inline-block;}
+  .doc-download:hover{border-color:var(--accent); color:var(--accent);}
+  .file-list-preview{display:flex; flex-direction:column; gap:4px; margin-top:6px; font-size:12px; color:var(--text-dim);}
   .empty{color:var(--text-faint); font-size:13px; padding:20px; text-align:center; border:1px dashed var(--line);}
 
   /* MODAL */
@@ -239,6 +262,12 @@
   </div>
   <div class="gallery-grid" id="galleryGrid"></div>
 
+  <div style="display:flex; justify-content:space-between; align-items:center; margin:30px 0 14px;">
+    <div class="section-label" style="margin:0;">Belgeler<span id="docsSubLabel" style="color:var(--text-dim); font-family:var(--font-body); font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; margin-left:8px;"></span></div>
+    <button class="small" id="btnNewDoc">+ Belge Ekle</button>
+  </div>
+  <div class="doc-list" id="docList"></div>
+
 </div>
 
 <!-- New Project Modal -->
@@ -311,10 +340,31 @@
   </div>
 </div>
 
+<!-- New Document Modal -->
+<div class="overlay" id="overlayDoc">
+  <div class="modal">
+    <h3>Belge Ekle</h3>
+    <div class="field"><label>Proje</label><select id="ndProject"></select></div>
+    <div class="field"><label>Tarih</label><input type="date" id="ndDate"></div>
+    <div class="field"><label>Not (opsiyonel)</label><input id="ndCaption" placeholder="Örn: Sutek keşif dosyası v2"></div>
+    <div class="field">
+      <label>Dosyalar</label>
+      <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" id="ndFiles" multiple>
+      <div class="file-hint">PDF, Word veya Excel — her dosya en fazla 5MB, birden fazla seçilebilir.</div>
+      <div class="file-list-preview" id="ndFilesPreview"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="ndCancel">Vazgeç</button>
+      <button class="primary" id="ndSave">Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let projects = [];
 let tasks = [];
 let siteImages = [];
+let documents = [];
 let selectedProjectId = null;
 
 const uid = () => Math.random().toString(36).slice(2,10);
@@ -414,7 +464,7 @@ async function cloudPull(){
 }
 async function cloudPush(){
   try{
-    const payload = { projects, tasks, siteImages, updatedAt: Date.now() };
+    const payload = { projects, tasks, siteImages, documents, updatedAt: Date.now() };
     const res = await fetch(FIREBASE_URL + '/data.json', {
       method:'PUT',
       headers:{'Content-Type':'application/json'},
@@ -439,10 +489,12 @@ async function loadData(){
     projects = cloud.projects || [];
     tasks = cloud.tasks || [];
     siteImages = cloud.siteImages || [];
+    documents = cloud.documents || [];
     lastSyncedAt = cloud.updatedAt || Date.now();
     await storageSet('projects', JSON.stringify(projects));
     await storageSet('tasks', JSON.stringify(tasks));
     await storageSet('siteImages', JSON.stringify(siteImages));
+    await storageSet('documents', JSON.stringify(documents));
     setCloudStatus('ok');
     startCloudPolling();
     return;
@@ -451,9 +503,11 @@ async function loadData(){
   const p = await storageGet('projects');
   const t = await storageGet('tasks');
   const g = await storageGet('siteImages');
+  const d = await storageGet('documents');
   try{ projects = p ? JSON.parse(p) : null; }catch(e){ projects = null; }
   try{ tasks = t ? JSON.parse(t) : null; }catch(e){ tasks = null; }
   try{ siteImages = g ? JSON.parse(g) : []; }catch(e){ siteImages = []; }
+  try{ documents = d ? JSON.parse(d) : []; }catch(e){ documents = []; }
   if(!projects || !tasks){ seedData(); }
   await saveAll();
   startCloudPolling();
@@ -466,10 +520,12 @@ function startCloudPolling(){
       projects = cloud.projects || [];
       tasks = cloud.tasks || [];
       siteImages = cloud.siteImages || [];
+      documents = cloud.documents || [];
       lastSyncedAt = cloud.updatedAt;
       await storageSet('projects', JSON.stringify(projects));
       await storageSet('tasks', JSON.stringify(tasks));
       await storageSet('siteImages', JSON.stringify(siteImages));
+      await storageSet('documents', JSON.stringify(documents));
       setCloudStatus('ok');
       renderAll();
     }
@@ -479,7 +535,14 @@ function startCloudPolling(){
 async function saveProjects(){ await storageSet('projects', JSON.stringify(projects)); await cloudPush(); flashSaved(); }
 async function saveTasks(){ await storageSet('tasks', JSON.stringify(tasks)); await cloudPush(); flashSaved(); }
 async function saveSiteImages(){ await storageSet('siteImages', JSON.stringify(siteImages)); await cloudPush(); flashSaved(); }
-async function saveAll(){ await storageSet('projects', JSON.stringify(projects)); await storageSet('tasks', JSON.stringify(tasks)); await storageSet('siteImages', JSON.stringify(siteImages)); await cloudPush(); flashSaved(); }
+async function saveDocuments(){ await storageSet('documents', JSON.stringify(documents)); await cloudPush(); flashSaved(); }
+async function saveAll(){
+  await storageSet('projects', JSON.stringify(projects));
+  await storageSet('tasks', JSON.stringify(tasks));
+  await storageSet('siteImages', JSON.stringify(siteImages));
+  await storageSet('documents', JSON.stringify(documents));
+  await cloudPush(); flashSaved();
+}
 
 let saveTimer=null;
 function flashSaved(){
@@ -492,7 +555,7 @@ function flashSaved(){
 }
 
 function exportBackup(){
-  const data = { projects, tasks, siteImages, exportedAt: new Date().toISOString() };
+  const data = { projects, tasks, siteImages, documents, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -507,7 +570,7 @@ function importBackup(file){
     try{
       const data = JSON.parse(e.target.result);
       if(!data.projects || !data.tasks) throw new Error('Geçersiz yedek dosyası');
-      projects = data.projects; tasks = data.tasks; siteImages = data.siteImages || [];
+      projects = data.projects; tasks = data.tasks; siteImages = data.siteImages || []; documents = data.documents || [];
       await saveAll(); renderAll();
       alert('Yedek başarıyla yüklendi.');
     }catch(err){ alert('Yedek dosyası okunamadı: geçersiz format.'); }
@@ -581,6 +644,7 @@ function renderProjects(){
       projects = projects.filter(p=>p.id!==id);
       tasks = tasks.filter(t=>t.projectId!==id);
       siteImages = siteImages.filter(g=>g.projectId!==id);
+      documents = documents.filter(d=>d.projectId!==id);
       if(selectedProjectId===id) selectedProjectId=null;
       await saveAll(); renderAll();
     });
@@ -691,6 +755,7 @@ function renderAll(){
   renderProjects();
   renderTasks();
   renderGallery();
+  renderDocuments();
 }
 
 function renderGallery(){
@@ -738,10 +803,67 @@ function renderGallery(){
   });
 }
 
+function docTypeInfo(filename){
+  const ext = (filename.split('.').pop()||'').toLowerCase();
+  if(ext==='pdf') return {cls:'pdf', label:'PDF'};
+  if(ext==='doc' || ext==='docx') return {cls:'word', label:'DOC'};
+  if(ext==='xls' || ext==='xlsx') return {cls:'excel', label:'XLS'};
+  return {cls:'other', label:ext.toUpperCase().slice(0,4) || 'DOSYA'};
+}
+function formatBytes(bytes){
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1024*1024) return Math.round(bytes/1024) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+
+function renderDocuments(){
+  const sub = document.getElementById('docsSubLabel');
+  let list = documents.slice();
+  if(selectedProjectId){
+    list = list.filter(d=>d.projectId===selectedProjectId);
+    const proj = projects.find(p=>p.id===selectedProjectId);
+    sub.textContent = proj ? `— ${proj.name}` : '';
+  } else {
+    sub.textContent = `— tüm projeler (${list.length} belge)`;
+  }
+  list.sort((a,b)=> b.date.localeCompare(a.date));
+
+  const container = document.getElementById('docList');
+  if(list.length===0){ container.innerHTML = '<div class="empty">Henüz belge yok. "+ Belge Ekle" ile başlayın.</div>'; return; }
+
+  container.innerHTML = list.map(d=>{
+    const proj = projects.find(p=>p.id===d.projectId);
+    const dateFmt = new Date(d.date+'T00:00:00').toLocaleDateString('tr-TR');
+    const info = docTypeInfo(d.name);
+    return `
+    <div class="doc-row">
+      <div class="doc-icon ${info.cls}">${info.label}</div>
+      <div class="doc-info">
+        <div class="doc-name">${escapeHtml(d.name)}</div>
+        <div class="doc-meta">${dateFmt} · ${proj ? escapeHtml(proj.name) : '—'} · ${formatBytes(d.size||0)}</div>
+        ${d.caption ? `<div class="doc-note">${escapeHtml(d.caption)}</div>` : ''}
+      </div>
+      <div class="doc-actions">
+        <a class="small doc-download" href="${d.data}" download="${escapeHtml(d.name)}">⇩ İndir</a>
+        <button class="del-btn" data-del-doc="${d.id}">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('[data-del-doc]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-del-doc');
+      documents = documents.filter(d=>d.id!==id);
+      await saveDocuments(); renderDocuments();
+    });
+  });
+}
+
 // Modals
 const overlayProject = document.getElementById('overlayProject');
 const overlayTask = document.getElementById('overlayTask');
 const overlayPhoto = document.getElementById('overlayPhoto');
+const overlayDoc = document.getElementById('overlayDoc');
 
 document.getElementById('btnNewProject').addEventListener('click', ()=>{
   document.getElementById('npName').value='';
@@ -856,7 +978,68 @@ document.getElementById('fileImport').addEventListener('change', (e)=>{
   if(file) importBackup(file);
   e.target.value = '';
 });
-[overlayProject, overlayTask, overlayPhoto].forEach(ov=>{
+
+const MAX_DOC_SIZE = 5 * 1024 * 1024; // 5MB
+function readFileAsDataUrl(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = (e)=> resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('btnNewDoc').addEventListener('click', ()=>{
+  if(projects.length===0){ alert('Önce bir proje ekleyin.'); return; }
+  const sel = document.getElementById('ndProject');
+  sel.innerHTML = projects.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  if(selectedProjectId) sel.value = selectedProjectId;
+  document.getElementById('ndDate').value = todayStr();
+  document.getElementById('ndCaption').value = '';
+  document.getElementById('ndFiles').value = '';
+  document.getElementById('ndFilesPreview').innerHTML = '';
+  overlayDoc.classList.add('open');
+});
+document.getElementById('ndFiles').addEventListener('change', async ()=>{
+  const files = Array.from(document.getElementById('ndFiles').files);
+  const prevBox = document.getElementById('ndFilesPreview');
+  prevBox.innerHTML = '';
+  for(const file of files){
+    if(file.size > MAX_DOC_SIZE){
+      const row = document.createElement('div');
+      row.style.color = 'var(--danger)';
+      row.textContent = `✕ ${file.name} — 5MB sınırını aşıyor, atlandı (${formatBytes(file.size)})`;
+      prevBox.appendChild(row);
+      continue;
+    }
+    try{
+      const dataUrl = await readFileAsDataUrl(file);
+      const row = document.createElement('div');
+      row.textContent = `✓ ${file.name} (${formatBytes(file.size)})`;
+      row.dataset.url = dataUrl; row.dataset.name = file.name; row.dataset.size = file.size;
+      row.className = 'doc-pending';
+      prevBox.appendChild(row);
+    }catch(e){ /* skip unreadable file */ }
+  }
+});
+document.getElementById('ndCancel').addEventListener('click', ()=> overlayDoc.classList.remove('open'));
+document.getElementById('ndSave').addEventListener('click', async ()=>{
+  const rows = Array.from(document.getElementById('ndFilesPreview').querySelectorAll('.doc-pending'));
+  if(rows.length===0){ alert('En az bir dosya seçin (5MB altında).'); return; }
+  const projectId = document.getElementById('ndProject').value;
+  const date = document.getElementById('ndDate').value || todayStr();
+  const caption = document.getElementById('ndCaption').value.trim();
+  rows.forEach(row=>{
+    documents.push({
+      id:uid(), projectId, date, caption,
+      name: row.dataset.name, size: Number(row.dataset.size), data: row.dataset.url
+    });
+  });
+  await saveDocuments();
+  overlayDoc.classList.remove('open');
+  renderDocuments();
+});
+[overlayProject, overlayTask, overlayPhoto, overlayDoc].forEach(ov=>{
   ov.addEventListener('click', (e)=>{ if(e.target===ov) ov.classList.remove('open'); });
 });
 const lightbox = document.getElementById('lightbox');
