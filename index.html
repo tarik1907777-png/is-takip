@@ -95,6 +95,9 @@
     font-size:13px; color:var(--accent); margin:30px 0 14px; display:flex; align-items:center; gap:10px;
   }
   .section-label::before{content:''; width:18px; height:2px; background:var(--accent); display:inline-block;}
+  .chevron{font-size:11px; color:var(--text-dim); transition:transform .15s; display:inline-block;}
+  .section-label:hover .chevron{color:var(--accent);}
+  .collapsed{display:none !important;}
 
   /* PROJECT GRID */
   .proj-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px;}
@@ -250,20 +253,20 @@
     </select>
   </div>
 
-  <div class="section-label">Projeler</div>
+  <div class="section-label" id="lblProjects" style="cursor:pointer;">Projeler <span class="chevron" id="chevProjects">▾</span></div>
   <div class="proj-grid" id="projGrid"></div>
 
-  <div class="section-label" id="taskSectionLabel">Tüm Görevler</div>
+  <div class="section-label" id="taskSectionLabel" style="cursor:pointer;"><span id="taskSectionLabelText">Tüm Görevler</span> <span class="chevron" id="chevTasks">▾</span></div>
   <div class="task-list" id="taskList"></div>
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin:30px 0 14px;">
-    <div class="section-label" style="margin:0;">İnşaat Görselleri<span id="gallerySubLabel" style="color:var(--text-dim); font-family:var(--font-body); font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; margin-left:8px;"></span></div>
+    <div class="section-label" id="lblGallery" style="margin:0; cursor:pointer;">İnşaat Görselleri<span id="gallerySubLabel" style="color:var(--text-dim); font-family:var(--font-body); font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; margin-left:8px;"></span> <span class="chevron" id="chevGallery">▾</span></div>
     <button class="small" id="btnNewPhoto">+ Fotoğraf Ekle</button>
   </div>
   <div class="gallery-grid" id="galleryGrid"></div>
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin:30px 0 14px;">
-    <div class="section-label" style="margin:0;">Belgeler<span id="docsSubLabel" style="color:var(--text-dim); font-family:var(--font-body); font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; margin-left:8px;"></span></div>
+    <div class="section-label" id="lblDocs" style="margin:0; cursor:pointer;">Belgeler<span id="docsSubLabel" style="color:var(--text-dim); font-family:var(--font-body); font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; margin-left:8px;"></span> <span class="chevron" id="chevDocs">▾</span></div>
     <button class="small" id="btnNewDoc">+ Belge Ekle</button>
   </div>
   <div class="doc-list" id="docList"></div>
@@ -669,7 +672,7 @@ function renderTasks(){
     return a.due.localeCompare(b.due);
   });
 
-  const label = document.getElementById('taskSectionLabel');
+  const label = document.getElementById('taskSectionLabelText');
   const projName = selectedProjectId ? (projects.find(p=>p.id===selectedProjectId)||{}).name : null;
   label.textContent = projName ? `Görevler — ${projName}` : 'Tüm Görevler';
 
@@ -1048,6 +1051,33 @@ document.getElementById('ndSave').addEventListener('click', async ()=>{
 const lightbox = document.getElementById('lightbox');
 document.getElementById('lightboxClose').addEventListener('click', ()=> lightbox.classList.remove('open'));
 lightbox.addEventListener('click', (e)=>{ if(e.target===lightbox) lightbox.classList.remove('open'); });
+
+// Collapsible sections (UI-only preference, stored locally, not synced to cloud)
+const COLLAPSE_KEY = 'is-takip:ui:collapse';
+let collapseState = {};
+try{ collapseState = JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}'); }catch(e){ collapseState = {}; }
+
+function setupCollapsible(sectionKey, labelId, contentId, chevronId){
+  const label = document.getElementById(labelId);
+  const content = document.getElementById(contentId);
+  const chevron = document.getElementById(chevronId);
+  if(!label || !content) return;
+  const applyState = ()=>{
+    const collapsed = !!collapseState[sectionKey];
+    content.classList.toggle('collapsed', collapsed);
+    if(chevron) chevron.textContent = collapsed ? '▸' : '▾';
+  };
+  label.addEventListener('click', ()=>{
+    collapseState[sectionKey] = !collapseState[sectionKey];
+    try{ localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapseState)); }catch(e){}
+    applyState();
+  });
+  applyState();
+}
+setupCollapsible('projects', 'lblProjects', 'projGrid', 'chevProjects');
+setupCollapsible('tasks', 'taskSectionLabel', 'taskList', 'chevTasks');
+setupCollapsible('gallery', 'lblGallery', 'galleryGrid', 'chevGallery');
+setupCollapsible('docs', 'lblDocs', 'docList', 'chevDocs');
 
 (async function init(){
   await loadData();
