@@ -35,10 +35,8 @@
   body{
     margin:0;
     background:
-      radial-gradient(ellipse 900px 500px at 20% -10%, rgba(255,122,51,0.09), transparent),
-      radial-gradient(ellipse 700px 400px at 90% 5%, rgba(245,197,66,0.07), transparent),
-      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/28px 28px,
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(180deg, rgba(8,18,32,0.90) 0%, rgba(10,22,38,0.86) 45%, rgba(8,18,32,0.94) 100%),
+      url('https://images.unsplash.com/photo-1730363856885-6f21a0b3a4ca?fm=jpg&q=80&w=2400&auto=format&fit=crop') center 35% / cover no-repeat fixed,
       var(--bg);
     color:var(--text);
     font-family:var(--font-body);
@@ -48,10 +46,6 @@
     -webkit-tap-highlight-color:transparent;
     overscroll-behavior-y:contain;
     position:relative;
-  }
-  .bg-skyline{
-    position:fixed; left:0; right:0; bottom:0; width:100%; height:340px;
-    opacity:0.22; z-index:0; pointer-events:none;
   }
   .wrap{max-width:1180px;margin:0 auto; position:relative; z-index:1;}
 
@@ -253,57 +247,6 @@
 </style>
 </head>
 <body>
-<svg class="bg-skyline" viewBox="0 0 1400 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <pattern id="hazardTape" width="22" height="22" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-      <rect width="22" height="22" fill="#132A45"/>
-      <rect width="11" height="22" fill="#FF8C42"/>
-    </pattern>
-  </defs>
-
-  <!-- background structures under construction -->
-  <rect x="30" y="150" width="90" height="120" fill="#132A45"/>
-  <rect x="140" y="105" width="65" height="165" fill="#1B3A5C"/>
-  <rect x="225" y="170" width="110" height="100" fill="#0F2238"/>
-  <g stroke="#2E5478" stroke-width="2">
-    <line x1="225" y1="170" x2="335" y2="270"/>
-    <line x1="335" y1="170" x2="225" y2="270"/>
-    <line x1="225" y1="205" x2="335" y2="205"/>
-    <line x1="225" y1="240" x2="335" y2="240"/>
-  </g>
-  <rect x="1020" y="130" width="85" height="140" fill="#1B3A5C"/>
-  <rect x="1120" y="175" width="120" height="95" fill="#132A45"/>
-  <rect x="1260" y="110" width="70" height="160" fill="#0F2238"/>
-  <g stroke="#2E5478" stroke-width="2">
-    <line x1="1120" y1="175" x2="1240" y2="270"/>
-    <line x1="1240" y1="175" x2="1120" y2="270"/>
-  </g>
-
-  <!-- tower crane -->
-  <rect x="775" y="15" width="10" height="255" fill="#2E5478"/>
-  <rect x="750" y="266" width="60" height="10" fill="#2E5478"/>
-  <rect x="655" y="16" width="130" height="7" fill="#2E5478"/>
-  <rect x="785" y="16" width="300" height="7" fill="#2E5478"/>
-  <rect x="648" y="6" width="35" height="26" fill="#1B3A5C"/>
-  <rect x="768" y="24" width="30" height="20" fill="#264C70"/>
-  <line x1="700" y1="23" x2="785" y2="60" stroke="#2E5478" stroke-width="2"/>
-  <line x1="900" y1="23" x2="785" y2="70" stroke="#2E5478" stroke-width="2"/>
-
-  <g id="craneHook">
-    <line x1="1005" y1="23" x2="1005" y2="150" stroke="#7C93AD" stroke-width="2"/>
-    <rect x="993" y="150" width="24" height="16" fill="#FF8C42"/>
-    <animateTransform attributeName="transform" type="rotate" values="-4 1005 23; 4 1005 23; -4 1005 23" dur="6s" repeatCount="indefinite"/>
-  </g>
-
-  <!-- safety cones -->
-  <polygon points="90,270 100,244 110,270" fill="#FF8C42"/>
-  <polygon points="500,270 510,244 520,270" fill="#FF8C42"/>
-  <polygon points="900,270 910,244 920,270" fill="#FF8C42"/>
-  <polygon points="1350,270 1360,244 1370,270" fill="#FF8C42"/>
-
-  <!-- hazard stripe ground line -->
-  <rect x="0" y="271" width="1400" height="9" fill="url(#hazardTape)"/>
-</svg>
 <div class="wrap">
 
   <header>
@@ -1195,15 +1138,6 @@ setupCollapsible('projects', 'lblProjects', 'projGrid', 'chevProjects');
 setupCollapsible('tasks', 'taskSectionLabel', 'taskList', 'chevTasks');
 setupCollapsible('gallery', 'lblGallery', 'galleryGrid', 'chevGallery');
 setupCollapsible('docs', 'lblDocs', 'docList', 'chevDocs');
-
-// Subtle parallax on the background construction scene while scrolling
-const bgSkyline = document.querySelector('.bg-skyline');
-if(bgSkyline){
-  window.addEventListener('scroll', ()=>{
-    const y = window.scrollY * 0.12;
-    bgSkyline.style.transform = `translateY(${y}px)`;
-  }, {passive:true});
-}
 
 (async function init(){
   await loadData();
