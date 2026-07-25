@@ -186,6 +186,12 @@
   .doc-download:hover{border-color:var(--accent); color:var(--accent);}
   .file-list-preview{display:flex; flex-direction:column; gap:4px; margin-top:6px; font-size:12px; color:var(--text-dim);}
   .empty{color:var(--text-faint); font-size:13px; padding:20px; text-align:center; border:1px dashed var(--line);}
+  .task-group-header{
+    font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:1px;
+    color:var(--accent); padding:10px 4px 4px; margin-top:6px; border-bottom:1px solid var(--line);
+  }
+  .task-group-header:first-child{margin-top:0;}
+  .task-group-count{color:var(--text-faint); font-weight:400; text-transform:none; letter-spacing:0;}
 
   /* MODAL */
   .overlay{position:fixed; inset:0; background:rgba(5,15,26,.72); display:none; align-items:center; justify-content:center; z-index:50;}
@@ -654,6 +660,43 @@ function renderProjects(){
   });
 }
 
+function taskRowHtml(t, proj){
+  const d = t.due ? daysUntil(t.due) : null;
+  let dueClass = '', dueText = t.due ? new Date(t.due+'T00:00:00').toLocaleDateString('tr-TR') : '—';
+  if(t.status!=='Tamamlandı' && d!==null){
+    if(d<0){ dueClass='overdue'; dueText = `${dueText} (${Math.abs(d)} gün gecikti)`; }
+    else if(d<=3){ dueClass='soon'; }
+  }
+  const rowOverdue = (t.status!=='Tamamlandı' && d!==null && d<0) ? 'overdue' : '';
+  const imgCell = t.image
+    ? `<img class="thumb" src="${t.image}" data-view-img="${t.id}" title="Görseli görüntüle">`
+    : `<button class="cam-btn" data-add-img="${t.id}" title="Görsel ekle">📷</button>`;
+  return `
+  <div class="task-row ${t.status==='Tamamlandı'?'done':''} ${rowOverdue}" data-id="${t.id}">
+    <input type="checkbox" class="chk" ${t.status==='Tamamlandı'?'checked':''} data-toggle="${t.id}">
+    <div class="task-title-wrap">
+      ${imgCell}
+      <div>
+        <div class="task-title ${t.status==='Tamamlandı'?'strike':''}">${escapeHtml(t.title)}</div>
+        <div class="task-project">${proj ? escapeHtml(proj.name) : '—'}</div>
+      </div>
+    </div>
+    <span class="tag">${t.category}</span>
+    <span class="tag priority-${t.priority}">${t.priority}</span>
+    <span class="due ${dueClass}">${dueText}</span>
+    <button class="del-btn" data-del-task="${t.id}">✕</button>
+  </div>`;
+}
+
+function sortTasks(list){
+  return list.slice().sort((a,b)=>{
+    if(a.status==='Tamamlandı' && b.status!=='Tamamlandı') return 1;
+    if(b.status==='Tamamlandı' && a.status!=='Tamamlandı') return -1;
+    if(!a.due) return 1; if(!b.due) return -1;
+    return a.due.localeCompare(b.due);
+  });
+}
+
 function renderTasks(){
   const filterVal = document.getElementById('filterStatus').value;
   let list = tasks.slice();
@@ -665,48 +708,36 @@ function renderTasks(){
     list = list.filter(t=>t.status===filterVal);
   }
 
-  list.sort((a,b)=>{
-    if(a.status==='Tamamlandı' && b.status!=='Tamamlandı') return 1;
-    if(b.status==='Tamamlandı' && a.status!=='Tamamlandı') return -1;
-    if(!a.due) return 1; if(!b.due) return -1;
-    return a.due.localeCompare(b.due);
-  });
-
   const label = document.getElementById('taskSectionLabelText');
   const projName = selectedProjectId ? (projects.find(p=>p.id===selectedProjectId)||{}).name : null;
-  label.textContent = projName ? `Görevler — ${projName}` : 'Tüm Görevler';
+  label.textContent = projName ? `Görevler — ${projName}` : 'Tüm Görevler — Projelere Göre';
 
   const container = document.getElementById('taskList');
   if(list.length===0){ container.innerHTML = '<div class="empty">Görev bulunamadı.</div>'; return; }
 
-  container.innerHTML = list.map(t=>{
-    const proj = projects.find(p=>p.id===t.projectId);
-    const d = t.due ? daysUntil(t.due) : null;
-    let dueClass = '', dueText = t.due ? new Date(t.due+'T00:00:00').toLocaleDateString('tr-TR') : '—';
-    if(t.status!=='Tamamlandı' && d!==null){
-      if(d<0){ dueClass='overdue'; dueText = `${dueText} (${Math.abs(d)} gün gecikti)`; }
-      else if(d<=3){ dueClass='soon'; }
-    }
-    const rowOverdue = (t.status!=='Tamamlandı' && d!==null && d<0) ? 'overdue' : '';
-    const imgCell = t.image
-      ? `<img class="thumb" src="${t.image}" data-view-img="${t.id}" title="Görseli görüntüle">`
-      : `<button class="cam-btn" data-add-img="${t.id}" title="Görsel ekle">📷</button>`;
-    return `
-    <div class="task-row ${t.status==='Tamamlandı'?'done':''} ${rowOverdue}" data-id="${t.id}">
-      <input type="checkbox" class="chk" ${t.status==='Tamamlandı'?'checked':''} data-toggle="${t.id}">
-      <div class="task-title-wrap">
-        ${imgCell}
-        <div>
-          <div class="task-title ${t.status==='Tamamlandı'?'strike':''}">${escapeHtml(t.title)}</div>
-          <div class="task-project">${proj ? escapeHtml(proj.name) : '—'}</div>
-        </div>
-      </div>
-      <span class="tag">${t.category}</span>
-      <span class="tag priority-${t.priority}">${t.priority}</span>
-      <span class="due ${dueClass}">${dueText}</span>
-      <button class="del-btn" data-del-task="${t.id}">✕</button>
-    </div>`;
-  }).join('');
+  if(selectedProjectId){
+    // single project already selected: flat list, no group headers needed
+    container.innerHTML = sortTasks(list).map(t=>taskRowHtml(t, projects.find(p=>p.id===t.projectId))).join('');
+  } else {
+    // group tasks by project so the list isn't a jumbled mix
+    const groups = {};
+    list.forEach(t=>{
+      if(!groups[t.projectId]) groups[t.projectId] = [];
+      groups[t.projectId].push(t);
+    });
+    const groupProjectIds = Object.keys(groups).sort((idA, idB)=>{
+      const nameA = (projects.find(p=>p.id===idA)||{}).name || '';
+      const nameB = (projects.find(p=>p.id===idB)||{}).name || '';
+      return nameA.localeCompare(nameB, 'tr');
+    });
+    container.innerHTML = groupProjectIds.map(pid=>{
+      const proj = projects.find(p=>p.id===pid);
+      const groupTasks = sortTasks(groups[pid]);
+      return `
+      <div class="task-group-header">${proj ? escapeHtml(proj.name) : 'Diğer'} <span class="task-group-count">(${groupTasks.length})</span></div>
+      ${groupTasks.map(t=>taskRowHtml(t, proj)).join('')}`;
+    }).join('');
+  }
 
   container.querySelectorAll('[data-view-img]').forEach(img=>{
     img.addEventListener('click', ()=>{
