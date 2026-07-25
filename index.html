@@ -350,7 +350,7 @@
     <div class="field">
       <label>Dosyalar</label>
       <input type="file" id="ndFiles" multiple>
-      <div class="file-hint">Her türlü dosya (PDF, Word, Excel, DWG, ZIP, resim vb.) — her dosya en fazla 5MB, birden fazla seçilebilir.</div>
+      <div class="file-hint">Her türlü dosya (PDF, Word, Excel, DWG, ZIP, resim vb.) — her dosya en fazla 20MB, birden fazla seçilebilir.</div>
       <div class="file-list-preview" id="ndFilesPreview"></div>
     </div>
     <div class="modal-actions">
@@ -982,7 +982,7 @@ document.getElementById('fileImport').addEventListener('change', (e)=>{
   e.target.value = '';
 });
 
-const MAX_DOC_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_DOC_SIZE = 20 * 1024 * 1024; // 20MB
 function readFileAsDataUrl(file){
   return new Promise((resolve, reject)=>{
     const reader = new FileReader();
@@ -1011,7 +1011,7 @@ document.getElementById('ndFiles').addEventListener('change', async ()=>{
     if(file.size > MAX_DOC_SIZE){
       const row = document.createElement('div');
       row.style.color = 'var(--danger)';
-      row.textContent = `✕ ${file.name} — 5MB sınırını aşıyor, atlandı (${formatBytes(file.size)})`;
+      row.textContent = `✕ ${file.name} — 20MB sınırını aşıyor, atlandı (${formatBytes(file.size)})`;
       prevBox.appendChild(row);
       continue;
     }
@@ -1028,7 +1028,7 @@ document.getElementById('ndFiles').addEventListener('change', async ()=>{
 document.getElementById('ndCancel').addEventListener('click', ()=> overlayDoc.classList.remove('open'));
 document.getElementById('ndSave').addEventListener('click', async ()=>{
   const rows = Array.from(document.getElementById('ndFilesPreview').querySelectorAll('.doc-pending'));
-  if(rows.length===0){ alert('En az bir dosya seçin (5MB altında).'); return; }
+  if(rows.length===0){ alert('En az bir dosya seçin (20MB altında).'); return; }
   const projectId = document.getElementById('ndProject').value;
   const date = document.getElementById('ndDate').value || todayStr();
   const caption = document.getElementById('ndCaption').value.trim();
