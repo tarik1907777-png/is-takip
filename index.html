@@ -145,6 +145,11 @@
   .task-row.done{opacity:.5;}
   .task-row.overdue{border-color:var(--danger);}
   .chk{width:17px; height:17px; accent-color:var(--accent); cursor:pointer;}
+  .status-select{
+    font-family:var(--font-mono); font-size:11px; font-weight:600; background:var(--bg-2);
+    border:1.5px solid var(--line); border-radius:3px; padding:6px 8px; cursor:pointer;
+    min-height:0; width:auto; white-space:nowrap;
+  }
   .task-title{font-weight:600;}
   .task-title.strike{text-decoration:line-through; color:var(--text-dim);}
   .task-project{font-size:11px; color:var(--text-dim); font-family:var(--font-mono);}
@@ -702,9 +707,16 @@ function taskRowHtml(t, proj){
     : `<button class="cam-btn" data-add-img="${t.id}" title="Görsel ekle">📷</button>`;
   const pColor = projectColor(proj ? proj.id : null);
   const borderColor = rowOverdue ? 'var(--danger)' : pColor;
+  const statusColors = { 'Bekliyor':'var(--text-dim)', 'Devam Ediyor':'var(--warn)', 'Tamamlandı':'var(--done)' };
+  const statusSelect = `
+    <select class="status-select" data-status-select="${t.id}" style="border-color:${statusColors[t.status]||'var(--line)'}; color:${statusColors[t.status]||'var(--text-dim)'};">
+      <option value="Bekliyor" ${t.status==='Bekliyor'?'selected':''}>Bekliyor</option>
+      <option value="Devam Ediyor" ${t.status==='Devam Ediyor'?'selected':''}>Devam Ediyor</option>
+      <option value="Tamamlandı" ${t.status==='Tamamlandı'?'selected':''}>Tamamlandı</option>
+    </select>`;
   return `
   <div class="task-row ${t.status==='Tamamlandı'?'done':''} ${rowOverdue}" data-id="${t.id}" style="border-left:3px solid ${borderColor};">
-    <input type="checkbox" class="chk" ${t.status==='Tamamlandı'?'checked':''} data-toggle="${t.id}">
+    ${statusSelect}
     <div class="task-title-wrap">
       ${imgCell}
       <div>
@@ -794,11 +806,11 @@ function renderTasks(){
     });
   });
 
-  container.querySelectorAll('[data-toggle]').forEach(chk=>{
-    chk.addEventListener('change', async ()=>{
-      const id = chk.getAttribute('data-toggle');
+  container.querySelectorAll('[data-status-select]').forEach(sel=>{
+    sel.addEventListener('change', async ()=>{
+      const id = sel.getAttribute('data-status-select');
       const task = tasks.find(t=>t.id===id);
-      task.status = chk.checked ? 'Tamamlandı' : 'Bekliyor';
+      task.status = sel.value;
       await saveTasks(); renderAll();
     });
   });
