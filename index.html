@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0F273F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="İş Takip">
+<meta name="mobile-web-app-capable" content="yes">
+<title>İş Takip — Saha ve Proje Yönetimi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F273F;
+    --bg-2:#0B1E32;
+    --surface:#153152;
+    --surface-2:#1C3D63;
+    --line:#3E77A6;
+    --grid:rgba(142,209,252,0.055);
+    --accent:#8ED1FC;
+    --accent-2:#5FB4E8;
+    --text:#EAF2F8;
+    --text-dim:#93AFC7;
+    --text-faint:#5C7893;
+    --warn:#E8A33D;
+    --danger:#E1604C;
+    --done:#5FAE86;
+    --font-display:'Oswald',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    min-height:100vh;
+    min-height:100dvh;
+    padding:20px 14px 80px;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior-y:contain;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* HEADER + TITLE BLOCK (signature element) */
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:24px;
+    border-bottom:2px solid var(--line);
+    padding-bottom:18px; margin-bottom:26px; flex-wrap:wrap;
+  }
+  .h-title{font-family:var(--font-display); font-weight:700; letter-spacing:1.5px;
+    font-size:30px; text-transform:uppercase; color:var(--text);}
+  .h-sub{font-size:13px; color:var(--text-dim); margin-top:4px; letter-spacing:.3px;}
+  .titleblock{
+    font-family:var(--font-mono); font-size:11px; border:1px solid var(--line);
+    display:grid; grid-template-columns:repeat(4,1fr); min-width:400px;
+  }
+  .tb-cell{padding:7px 12px; border-right:1px solid var(--line);}
+  .tb-cell:last-child{border-right:none;}
+  .tb-label{color:var(--text-faint); font-size:9px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:3px;}
+  .tb-val{color:var(--accent); font-size:15px; font-weight:600;}
+  .tb-val.warn{color:var(--warn);}
+  .tb-val.danger{color:var(--danger);}
+
+  /* TOOLBAR */
+  .toolbar{display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; align-items:center;}
+  button{
+    font-family:var(--font-body); font-weight:600; font-size:13px; cursor:pointer;
+    border:1px solid var(--line); background:var(--surface); color:var(--text);
+    padding:10px 16px; border-radius:2px; transition:background .15s,border-color .15s;
+    min-height:40px;
+  }
+  button:hover{background:var(--surface-2); border-color:var(--accent);}
+  button.primary{background:var(--accent); color:var(--bg-2); border-color:var(--accent);}
+  button.primary:hover{background:var(--accent-2);}
+  button.ghost{background:transparent;}
+  button.small{padding:8px 12px; font-size:12px; min-height:36px;}
+  .spacer{flex:1;}
+  select, input, textarea{
+    font-family:var(--font-body); background:var(--surface); color:var(--text);
+    border:1px solid var(--line); border-radius:2px; padding:10px; font-size:16px;
+    min-height:40px;
+  }
+  select:focus, input:focus, textarea:focus{outline:none; border-color:var(--accent);}
+
+  /* SECTION LABELS */
+  .section-label{
+    font-family:var(--font-display); text-transform:uppercase; letter-spacing:1.5px;
+    font-size:13px; color:var(--accent); margin:30px 0 14px; display:flex; align-items:center; gap:10px;
+  }
+  .section-label::before{content:''; width:18px; height:2px; background:var(--accent); display:inline-block;}
+
+  /* PROJECT GRID */
+  .proj-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px;}
+  .proj-card{
+    background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent);
+    padding:14px 16px; cursor:pointer; position:relative; transition:background .15s;
+  }
+  .proj-card:hover{background:var(--surface-2);}
+  .proj-card.selected{border-left-color:var(--warn); background:var(--surface-2);}
+  .proj-name{font-weight:700; font-size:14.5px; margin-bottom:2px;}
+  .proj-site{font-size:12px; color:var(--text-dim); margin-bottom:10px;}
+  .proj-meta{display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px;}
+  .status-badge{padding:2px 8px; border-radius:2px; font-size:10px; letter-spacing:.5px; text-transform:uppercase; font-family:var(--font-body); font-weight:700;}
+  .status-aktif{background:rgba(95,180,232,.18); color:var(--accent);}
+  .status-beklemede{background:rgba(232,163,61,.18); color:var(--warn);}
+  .status-tamamlandi{background:rgba(95,174,134,.18); color:var(--done);}
+  .proj-del{position:absolute; top:8px; right:8px; opacity:0; font-size:11px; color:var(--danger); background:none; border:none; padding:2px 6px;}
+  .proj-card:hover .proj-del{opacity:1;}
+  .task-count{color:var(--text-dim);}
+
+  /* TASK LIST */
+  .task-list{display:flex; flex-direction:column; gap:8px;}
+  .task-row{
+    display:grid; grid-template-columns:auto 1fr auto auto auto auto; gap:14px; align-items:center;
+    background:var(--surface); border:1px solid var(--line); padding:11px 14px; font-size:13px;
+  }
+  .task-row.done{opacity:.5;}
+  .task-row.overdue{border-color:var(--danger);}
+  .chk{width:17px; height:17px; accent-color:var(--accent); cursor:pointer;}
+  .task-title{font-weight:600;}
+  .task-title.strike{text-decoration:line-through; color:var(--text-dim);}
+  .task-project{font-size:11px; color:var(--text-dim); font-family:var(--font-mono);}
+  .tag{font-family:var(--font-mono); font-size:10.5px; padding:3px 8px; border:1px solid var(--line); color:var(--text-dim); white-space:nowrap;}
+  .tag.priority-Yüksek{color:var(--danger); border-color:var(--danger);}
+  .tag.priority-Orta{color:var(--warn); border-color:var(--warn);}
+  .due{font-family:var(--font-mono); font-size:12px; color:var(--text-dim); white-space:nowrap;}
+  .due.overdue{color:var(--danger); font-weight:600;}
+  .due.soon{color:var(--warn);}
+  .del-btn{background:none; border:none; color:var(--text-faint); font-size:16px; padding:0 4px;}
+  .del-btn:hover{color:var(--danger); background:none;}
+  .task-title-wrap{display:flex; align-items:center; gap:10px;}
+  .thumb{width:34px; height:34px; object-fit:cover; border:1px solid var(--line); cursor:pointer; flex-shrink:0; border-radius:2px;}
+  .thumb:hover{border-color:var(--accent);}
+  .cam-btn{background:none; border:1px solid var(--line); color:var(--text-faint); width:34px; height:34px; flex-shrink:0; border-radius:2px; font-size:14px; padding:0; display:flex; align-items:center; justify-content:center;}
+  .cam-btn:hover{border-color:var(--accent); color:var(--accent);}
+  .lightbox-overlay{position:fixed; inset:0; background:rgba(5,15,26,.88); display:none; align-items:center; justify-content:center; z-index:60; padding:30px;}
+  .lightbox-overlay.open{display:flex;}
+  .lightbox-overlay img{max-width:90vw; max-height:85vh; border:1px solid var(--accent);}
+  .lightbox-close{position:absolute; top:20px; right:26px; background:none; border:none; color:var(--text); font-size:26px; cursor:pointer;}
+  .img-preview{width:70px; height:70px; object-fit:cover; border:1px solid var(--line); margin-top:6px; display:none;}
+
+  /* GALLERY */
+  .gallery-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px;}
+  .gallery-card{background:var(--surface); border:1px solid var(--line); overflow:hidden; position:relative;}
+  .gallery-thumb{width:100%; height:130px; object-fit:cover; cursor:pointer; display:block;}
+  .gallery-info{padding:8px 10px;}
+  .gallery-date{font-family:var(--font-mono); font-size:10.5px; color:var(--accent);}
+  .gallery-project{font-size:11px; color:var(--text-dim); margin-top:2px;}
+  .gallery-caption{font-size:12px; margin-top:4px; color:var(--text);}
+  .gallery-del{position:absolute; top:6px; right:6px; background:rgba(11,30,50,.75); border:none; color:var(--text); width:22px; height:22px; border-radius:2px; font-size:12px; opacity:0; transition:opacity .15s;}
+  .gallery-card:hover .gallery-del{opacity:1;}
+  .file-hint{font-size:11px; color:var(--text-faint); margin-top:4px;}
+  .multi-preview{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
+  .multi-preview img{width:56px; height:56px; object-fit:cover; border:1px solid var(--line);}
+  .empty{color:var(--text-faint); font-size:13px; padding:20px; text-align:center; border:1px dashed var(--line);}
+
+  /* MODAL */
+  .overlay{position:fixed; inset:0; background:rgba(5,15,26,.72); display:none; align-items:center; justify-content:center; z-index:50;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--surface); border:1px solid var(--accent); width:420px; max-width:92vw; padding:22px;}
+  .modal h3{font-family:var(--font-display); text-transform:uppercase; letter-spacing:1px; margin:0 0 16px; font-size:16px; color:var(--accent);}
+  .field{margin-bottom:12px; display:flex; flex-direction:column; gap:5px;}
+  .field label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;}
+  .field input, .field select, .field textarea{width:100%;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
+
+  @media (max-width:640px){
+    body{padding:14px 10px 90px;}
+    header{gap:14px;}
+    .h-title{font-size:24px;}
+    .titleblock{min-width:0; width:100%; grid-template-columns:repeat(2,1fr);}
+    .toolbar{gap:8px;}
+    .toolbar button{flex:1 1 auto;}
+    #saveIndicator{order:99; width:100%; text-align:center;}
+    .proj-grid{grid-template-columns:1fr;}
+    .task-row{
+      display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; padding:12px;
+    }
+    .task-title-wrap{flex:1 1 160px; min-width:0;}
+    .task-title-wrap .task-title, .task-title-wrap .task-project{
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .due{margin-left:auto;}
+    .gallery-grid{grid-template-columns:repeat(2,1fr);}
+    .modal{
+      position:fixed; inset:auto 0 0 0; width:100%; max-width:100%;
+      border-left:none; border-right:none; border-bottom:none;
+      max-height:88vh; overflow-y:auto; border-radius:8px 8px 0 0;
+    }
+    .overlay{align-items:flex-end;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="h-title">İş Takip</div>
+      <div class="h-sub">Saha ve Proje Yönetimi — Tarik</div>
+    </div>
+    <div class="titleblock" id="titleblock"></div>
+  </header>
+
+  <div class="toolbar">
+    <button class="primary" id="btnNewTask">+ Yeni Görev</button>
+    <button id="btnNewProject">+ Yeni Proje</button>
+    <div class="spacer"></div>
+    <span id="saveIndicator" style="font-family:var(--font-mono);font-size:11px;color:var(--done);opacity:0;transition:opacity .3s;">Kaydedildi ✓</span>
+    <button class="small ghost" id="btnExport" title="Verileri JSON dosyası olarak indir">⇩ Yedekle</button>
+    <button class="small ghost" id="btnImport" title="Yedek dosyasından geri yükle">⇧ Geri Yükle</button>
+    <input type="file" id="fileImport" accept="application/json" style="display:none;">
+    <select id="filterStatus">
+      <option value="Tümü">Tüm Durumlar</option>
+      <option value="Bekliyor">Bekliyor</option>
+      <option value="Devam Ediyor">Devam Ediyor</option>
+      <option value="Tamamlandı">Tamamlandı</option>
+      <option value="Gecikmiş">Gecikmiş</option>
+    </select>
+  </div>
+
+  <div class="section-label">Projeler</div>
+  <div class="proj-grid" id="projGrid"></div>
+
+  <div class="section-label" id="taskSectionLabel">Tüm Görevler</div>
+  <div class="task-list" id="taskList"></div>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin:30px 0 14px;">
+    <div class="section-label" style="margin:0;">İnşaat Görselleri<span id="gallerySubLabel" style="color:var(--text-dim); font-family:var(--font-body); font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; margin-left:8px;"></span></div>
+    <button class="small" id="btnNewPhoto">+ Fotoğraf Ekle</button>
+  </div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+
+</div>
+
+<!-- New Project Modal -->
+<div class="overlay" id="overlayProject">
+  <div class="modal">
+    <h3>Yeni Proje</h3>
+    <div class="field"><label>Proje Adı</label><input id="npName" placeholder="Örn: Şekerpınar Eğitim Binası"></div>
+    <div class="field"><label>Saha / Konum</label><input id="npSite" placeholder="Örn: Şekerpınar, Kocaeli"></div>
+    <div class="field"><label>Durum</label>
+      <select id="npStatus"><option>Aktif</option><option>Beklemede</option><option>Tamamlandı</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="npCancel">Vazgeç</button>
+      <button class="primary" id="npSave">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Task Modal -->
+<div class="overlay" id="overlayTask">
+  <div class="modal">
+    <h3>Yeni Görev</h3>
+    <div class="field"><label>Proje</label><select id="ntProject"></select></div>
+    <div class="field"><label>Görev</label><input id="ntTitle" placeholder="Örn: Sutek keşif dosyası kontrolü"></div>
+    <div class="field"><label>Kategori</label>
+      <select id="ntCategory">
+        <option>Keşif Denetimi</option><option>Rapor</option><option>Evrak/Dilekçe</option>
+        <option>Toplantı</option><option>Saha Ziyareti</option><option>Diğer</option>
+      </select>
+    </div>
+    <div class="field"><label>Öncelik</label>
+      <select id="ntPriority"><option>Orta</option><option>Yüksek</option><option>Düşük</option></select>
+    </div>
+    <div class="field"><label>Son Tarih</label><input type="date" id="ntDue"></div>
+    <div class="field">
+      <label>Görsel (opsiyonel)</label>
+      <input type="file" accept="image/*" id="ntImage">
+      <img class="img-preview" id="ntImagePreview">
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="ntCancel">Vazgeç</button>
+      <button class="primary" id="ntSave">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox-overlay" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <img id="lightboxImg" src="">
+</div>
+
+<!-- New Photo Modal -->
+<div class="overlay" id="overlayPhoto">
+  <div class="modal">
+    <h3>Fotoğraf Ekle</h3>
+    <div class="field"><label>Proje</label><select id="npPhotoProject"></select></div>
+    <div class="field"><label>Tarih</label><input type="date" id="npPhotoDate"></div>
+    <div class="field"><label>Not (opsiyonel)</label><input id="npPhotoCaption" placeholder="Örn: Temel kalıp işleri tamamlandı"></div>
+    <div class="field">
+      <label>Fotoğraflar</label>
+      <input type="file" accept="image/*" id="npPhotoFiles" multiple>
+      <div class="file-hint">Birden fazla fotoğraf seçebilirsiniz.</div>
+      <div class="multi-preview" id="npPhotoPreview"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="npPhotoCancel">Vazgeç</button>
+      <button class="primary" id="npPhotoSave">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let projects = [];
+let tasks = [];
+let siteImages = [];
+let selectedProjectId = null;
+
+const uid = () => Math.random().toString(36).slice(2,10);
+const todayStr = () => new Date().toISOString().slice(0,10);
+
+function resizeImage(file, maxDim=480, quality=0.62){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e)=>{ img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = ()=>{
+      let w = img.width, h = img.height;
+      if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+      else if(h >= w && h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function seedData(){
+  const p = {};
+  const mk = (key, name, site, status) => { const id = uid(); p[key] = id; return {id, name, site, status}; };
+
+  projects = [
+    mk('gebze', 'Scania Gebze', 'Gebze, Kocaeli', 'Aktif'),
+    mk('etimesgut', 'Doğuş Oto Ankara Etimesgut', 'Etimesgut, Ankara', 'Aktif'),
+    mk('maslak', 'Doğuş Oto Maslak', 'Maslak, İstanbul', 'Aktif'),
+    mk('esenyurt', 'Doğuş Oto Esenyurt', 'Esenyurt, İstanbul', 'Aktif'),
+    mk('gocek', 'Göcek Doğuş Marine', 'Göcek, Fethiye', 'Aktif'),
+    mk('sekerpinar_egitim', 'Şekerpınar Lojistik / Eğitim Binası', 'Şekerpınar, Kocaeli', 'Aktif'),
+    mk('carport', 'Şekerpınar Solar Carport', 'Şekerpınar, Kocaeli', 'Beklemede'),
+    mk('kartal_porsche', 'Doğuş Oto Kartal Porsche Showroom Renovasyonu', 'Kartal', 'Aktif'),
+    mk('ankara_yemekhane', 'Doğuş Oto Ankara- Yemekhane Tadilatları', 'Ankara', 'Aktif'),
+    mk('ankara_etimesgut_insaat', 'Doğuş Oto Ankara - Etimesgut İnşaat İşleri', 'Ankara', 'Aktif'),
+    mk('yedek_parca', 'YEDEK PARÇA PERSONEL DİNLENME ALANI RENOVASYONU', 'Şekerpınar', 'Aktif'),
+    mk('bekleme_alani', 'Şekerpınar Bekleme Alanı', 'Şekerpınar', 'Aktif'),
+    mk('sensat_koridor', 'Scania Sensat Koridor Baskı İşleri', 'Şekerpınar', 'Aktif'),
+    mk('sevkiyat_egitim', 'Araç Sevkiyat Alanı ve Eğitim Binası İnşaat Çalışmaları', 'Şekerpınar', 'Aktif'),
+  ];
+
+  const t = (projectId, title, category, priority, due, status) =>
+    ({id:uid(), projectId, title, category, priority, due, status: status||'Bekliyor'});
+
+  tasks = [
+    t(p.gebze, 'İhale süreci tamamlanması', 'Diğer', 'Yüksek', '2026-07-27'),
+    t(p.kartal_porsche, 'İhale teklifleri inceleme', 'Diğer', 'Yüksek', '2026-07-27'),
+    t(p.maslak, 'Sözleşme süreci tamamlanma', 'Diğer', 'Yüksek', '2026-07-29'),
+    t(p.ankara_yemekhane, 'İhale ilk tekliflerinin açılması', 'Evrak/Dilekçe', 'Yüksek', '2026-07-29'),
+    t(p.ankara_etimesgut_insaat, 'İhale süreci tamamlanması ve firma seçimi', 'Keşif Denetimi', 'Yüksek', '2026-07-29'),
+    t(p.bekleme_alani, 'Temel Betonu dökümü', 'Saha Ziyareti', 'Yüksek', '2026-07-29'),
+    t(p.sevkiyat_egitim, 'İhale tamamlanması ve Firma Seçimi', 'Evrak/Dilekçe', 'Yüksek', '2026-07-29'),
+    t(p.yedek_parca, 'Ek bütçe talebi ve firma seçimi yapılması', 'Evrak/Dilekçe', 'Yüksek', '2026-07-31'),
+    t(p.maslak, 'İş Başlangıcı', 'Saha Ziyareti', 'Yüksek', '2026-08-05'),
+    t(p.esenyurt, '1.etap tamamlanma tarihi', 'Saha Ziyareti', 'Yüksek', '2026-08-10'),
+    t(p.bekleme_alani, 'Ruhsat süreci', 'Evrak/Dilekçe', 'Yüksek', '2026-08-25'),
+    t(p.sensat_koridor, 'Uygulama çalışmaları', 'Diğer', 'Yüksek', '2026-07-25', 'Tamamlandı'),
+  ];
+}
+
+const LS_PREFIX = 'is-takip:';
+const hasClaudeStorage = () => (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+
+async function storageGet(key){
+  if(hasClaudeStorage()){
+    try{
+      const r = await window.storage.get(key, false);
+      return r ? r.value : null;
+    }catch(e){ /* key not found or panel storage unavailable -> fall through */ }
+  }
+  try{ return localStorage.getItem(LS_PREFIX+key); }catch(e){ return null; }
+}
+async function storageSet(key, value){
+  let ok = false;
+  if(hasClaudeStorage()){
+    try{ const r = await window.storage.set(key, value, false); ok = !!r; }catch(e){ ok = false; }
+  }
+  try{ localStorage.setItem(LS_PREFIX+key, value); ok = true; }catch(e){ /* localStorage unavailable */ }
+  return ok;
+}
+
+async function loadData(){
+  const p = await storageGet('projects');
+  const t = await storageGet('tasks');
+  const g = await storageGet('siteImages');
+  try{ projects = p ? JSON.parse(p) : null; }catch(e){ projects = null; }
+  try{ tasks = t ? JSON.parse(t) : null; }catch(e){ tasks = null; }
+  try{ siteImages = g ? JSON.parse(g) : []; }catch(e){ siteImages = []; }
+  if(!projects || !tasks){ seedData(); await saveAll(); }
+}
+async function saveProjects(){ await storageSet('projects', JSON.stringify(projects)); flashSaved(); }
+async function saveTasks(){ await storageSet('tasks', JSON.stringify(tasks)); flashSaved(); }
+async function saveSiteImages(){ await storageSet('siteImages', JSON.stringify(siteImages)); flashSaved(); }
+async function saveAll(){ await saveProjects(); await saveTasks(); await saveSiteImages(); }
+
+let saveTimer=null;
+function flashSaved(){
+  const el = document.getElementById('saveIndicator');
+  if(!el) return;
+  el.textContent = 'Kaydedildi ✓';
+  el.style.opacity = '1';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ el.style.opacity='0'; }, 1600);
+}
+
+function exportBackup(){
+  const data = { projects, tasks, siteImages, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'is-takip-yedek-' + todayStr() + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(file){
+  const reader = new FileReader();
+  reader.onload = async (e)=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.projects || !data.tasks) throw new Error('Geçersiz yedek dosyası');
+      projects = data.projects; tasks = data.tasks; siteImages = data.siteImages || [];
+      await saveAll(); renderAll();
+      alert('Yedek başarıyla yüklendi.');
+    }catch(err){ alert('Yedek dosyası okunamadı: geçersiz format.'); }
+  };
+  reader.readAsText(file);
+}
+
+function statusClass(s){
+  if(s==='Aktif') return 'status-aktif';
+  if(s==='Beklemede') return 'status-beklemede';
+  return 'status-tamamlandi';
+}
+
+function daysUntil(dateStr){
+  if(!dateStr) return null;
+  const d = new Date(dateStr+'T00:00:00');
+  const now = new Date(todayStr()+'T00:00:00');
+  return Math.round((d-now)/86400000);
+}
+
+function renderTitleBlock(){
+  const activeCount = projects.filter(p=>p.status==='Aktif').length;
+  const overdue = tasks.filter(t=>t.status!=='Tamamlandı' && t.due && daysUntil(t.due)<0).length;
+  const dueSoon = tasks.filter(t=>{
+    if(t.status==='Tamamlandı' || !t.due) return false;
+    const d = daysUntil(t.due);
+    return d>=0 && d<=7;
+  }).length;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('tr-TR');
+  document.getElementById('titleblock').innerHTML = `
+    <div class="tb-cell"><span class="tb-label">Aktif Proje</span><span class="tb-val">${activeCount}</span></div>
+    <div class="tb-cell"><span class="tb-label">7 Gün İçinde</span><span class="tb-val warn">${dueSoon}</span></div>
+    <div class="tb-cell"><span class="tb-label">Gecikmiş</span><span class="tb-val danger">${overdue}</span></div>
+    <div class="tb-cell"><span class="tb-label">Tarih</span><span class="tb-val" style="color:var(--text)">${dateStr}</span></div>
+  `;
+}
+
+function renderProjects(){
+  const grid = document.getElementById('projGrid');
+  if(projects.length===0){ grid.innerHTML = '<div class="empty">Henüz proje yok. "+ Yeni Proje" ile ekleyin.</div>'; return; }
+  grid.innerHTML = projects.map(p=>{
+    const pTasks = tasks.filter(t=>t.projectId===p.id);
+    const open = pTasks.filter(t=>t.status!=='Tamamlandı').length;
+    const sel = p.id===selectedProjectId ? 'selected' : '';
+    return `
+    <div class="proj-card ${sel}" data-id="${p.id}">
+      <button class="proj-del" data-del-project="${p.id}" title="Projeyi sil">✕</button>
+      <div class="proj-name">${escapeHtml(p.name)}</div>
+      <div class="proj-site">${escapeHtml(p.site||'')}</div>
+      <div class="proj-meta">
+        <span class="status-badge ${statusClass(p.status)}">${p.status}</span>
+        <span class="task-count">${open} açık görev</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.proj-card').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-del-project]')) return;
+      const id = card.getAttribute('data-id');
+      selectedProjectId = (selectedProjectId===id) ? null : id;
+      renderAll();
+    });
+  });
+  grid.querySelectorAll('[data-del-project]').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const id = btn.getAttribute('data-del-project');
+      if(!confirm('Bu projeyi ve ilişkili görevleri silmek istediğinize emin misiniz?')) return;
+      projects = projects.filter(p=>p.id!==id);
+      tasks = tasks.filter(t=>t.projectId!==id);
+      siteImages = siteImages.filter(g=>g.projectId!==id);
+      if(selectedProjectId===id) selectedProjectId=null;
+      await saveAll(); renderAll();
+    });
+  });
+}
+
+function renderTasks(){
+  const filterVal = document.getElementById('filterStatus').value;
+  let list = tasks.slice();
+  if(selectedProjectId) list = list.filter(t=>t.projectId===selectedProjectId);
+
+  if(filterVal==='Gecikmiş'){
+    list = list.filter(t=>t.status!=='Tamamlandı' && t.due && daysUntil(t.due)<0);
+  } else if(filterVal!=='Tümü'){
+    list = list.filter(t=>t.status===filterVal);
+  }
+
+  list.sort((a,b)=>{
+    if(a.status==='Tamamlandı' && b.status!=='Tamamlandı') return 1;
+    if(b.status==='Tamamlandı' && a.status!=='Tamamlandı') return -1;
+    if(!a.due) return 1; if(!b.due) return -1;
+    return a.due.localeCompare(b.due);
+  });
+
+  const label = document.getElementById('taskSectionLabel');
+  const projName = selectedProjectId ? (projects.find(p=>p.id===selectedProjectId)||{}).name : null;
+  label.textContent = projName ? `Görevler — ${projName}` : 'Tüm Görevler';
+
+  const container = document.getElementById('taskList');
+  if(list.length===0){ container.innerHTML = '<div class="empty">Görev bulunamadı.</div>'; return; }
+
+  container.innerHTML = list.map(t=>{
+    const proj = projects.find(p=>p.id===t.projectId);
+    const d = t.due ? daysUntil(t.due) : null;
+    let dueClass = '', dueText = t.due ? new Date(t.due+'T00:00:00').toLocaleDateString('tr-TR') : '—';
+    if(t.status!=='Tamamlandı' && d!==null){
+      if(d<0){ dueClass='overdue'; dueText = `${dueText} (${Math.abs(d)} gün gecikti)`; }
+      else if(d<=3){ dueClass='soon'; }
+    }
+    const rowOverdue = (t.status!=='Tamamlandı' && d!==null && d<0) ? 'overdue' : '';
+    const imgCell = t.image
+      ? `<img class="thumb" src="${t.image}" data-view-img="${t.id}" title="Görseli görüntüle">`
+      : `<button class="cam-btn" data-add-img="${t.id}" title="Görsel ekle">📷</button>`;
+    return `
+    <div class="task-row ${t.status==='Tamamlandı'?'done':''} ${rowOverdue}" data-id="${t.id}">
+      <input type="checkbox" class="chk" ${t.status==='Tamamlandı'?'checked':''} data-toggle="${t.id}">
+      <div class="task-title-wrap">
+        ${imgCell}
+        <div>
+          <div class="task-title ${t.status==='Tamamlandı'?'strike':''}">${escapeHtml(t.title)}</div>
+          <div class="task-project">${proj ? escapeHtml(proj.name) : '—'}</div>
+        </div>
+      </div>
+      <span class="tag">${t.category}</span>
+      <span class="tag priority-${t.priority}">${t.priority}</span>
+      <span class="due ${dueClass}">${dueText}</span>
+      <button class="del-btn" data-del-task="${t.id}">✕</button>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('[data-view-img]').forEach(img=>{
+    img.addEventListener('click', ()=>{
+      document.getElementById('lightboxImg').src = img.getAttribute('src');
+      document.getElementById('lightbox').classList.add('open');
+    });
+  });
+  container.querySelectorAll('[data-add-img]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const taskId = btn.getAttribute('data-add-img');
+      const input = document.createElement('input');
+      input.type='file'; input.accept='image/*';
+      input.onchange = async ()=>{
+        if(!input.files[0]) return;
+        try{
+          const dataUrl = await resizeImage(input.files[0]);
+          const task = tasks.find(x=>x.id===taskId);
+          task.image = dataUrl;
+          await saveTasks(); renderAll();
+        }catch(e){ alert('Görsel yüklenemedi.'); }
+      };
+      input.click();
+    });
+  });
+
+  container.querySelectorAll('[data-toggle]').forEach(chk=>{
+    chk.addEventListener('change', async ()=>{
+      const id = chk.getAttribute('data-toggle');
+      const task = tasks.find(t=>t.id===id);
+      task.status = chk.checked ? 'Tamamlandı' : 'Bekliyor';
+      await saveTasks(); renderAll();
+    });
+  });
+  container.querySelectorAll('[data-del-task]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-del-task');
+      tasks = tasks.filter(t=>t.id!==id);
+      await saveTasks(); renderAll();
+    });
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function renderAll(){
+  renderTitleBlock();
+  renderProjects();
+  renderTasks();
+  renderGallery();
+}
+
+function renderGallery(){
+  const sub = document.getElementById('gallerySubLabel');
+  let list = siteImages.slice();
+  if(selectedProjectId){
+    list = list.filter(g=>g.projectId===selectedProjectId);
+    const proj = projects.find(p=>p.id===selectedProjectId);
+    sub.textContent = proj ? `— ${proj.name}` : '';
+  } else {
+    sub.textContent = `— tüm projeler (${list.length} fotoğraf)`;
+  }
+  list.sort((a,b)=> b.date.localeCompare(a.date));
+
+  const grid = document.getElementById('galleryGrid');
+  if(list.length===0){ grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Henüz fotoğraf yok. "+ Fotoğraf Ekle" ile başlayın.</div>'; return; }
+
+  grid.innerHTML = list.map(g=>{
+    const proj = projects.find(p=>p.id===g.projectId);
+    const dateFmt = new Date(g.date+'T00:00:00').toLocaleDateString('tr-TR');
+    return `
+    <div class="gallery-card">
+      <button class="gallery-del" data-del-photo="${g.id}" title="Sil">✕</button>
+      <img class="gallery-thumb" src="${g.image}" data-view-img="${g.id}">
+      <div class="gallery-info">
+        <div class="gallery-date">${dateFmt}</div>
+        ${proj ? `<div class="gallery-project">${escapeHtml(proj.name)}</div>` : ''}
+        ${g.caption ? `<div class="gallery-caption">${escapeHtml(g.caption)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('[data-view-img]').forEach(img=>{
+    img.addEventListener('click', ()=>{
+      document.getElementById('lightboxImg').src = img.getAttribute('src');
+      document.getElementById('lightbox').classList.add('open');
+    });
+  });
+  grid.querySelectorAll('[data-del-photo]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-del-photo');
+      siteImages = siteImages.filter(g=>g.id!==id);
+      await saveSiteImages(); renderGallery();
+    });
+  });
+}
+
+// Modals
+const overlayProject = document.getElementById('overlayProject');
+const overlayTask = document.getElementById('overlayTask');
+const overlayPhoto = document.getElementById('overlayPhoto');
+
+document.getElementById('btnNewProject').addEventListener('click', ()=>{
+  document.getElementById('npName').value='';
+  document.getElementById('npSite').value='';
+  document.getElementById('npStatus').value='Aktif';
+  overlayProject.classList.add('open');
+});
+document.getElementById('npCancel').addEventListener('click', ()=> overlayProject.classList.remove('open'));
+document.getElementById('npSave').addEventListener('click', async ()=>{
+  const name = document.getElementById('npName').value.trim();
+  if(!name){ alert('Proje adı gerekli.'); return; }
+  projects.push({
+    id:uid(), name,
+    site:document.getElementById('npSite').value.trim(),
+    status:document.getElementById('npStatus').value
+  });
+  await saveProjects();
+  overlayProject.classList.remove('open');
+  renderAll();
+});
+
+function fillProjectSelect(){
+  const sel = document.getElementById('ntProject');
+  sel.innerHTML = projects.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  if(selectedProjectId) sel.value = selectedProjectId;
+}
+document.getElementById('btnNewTask').addEventListener('click', ()=>{
+  if(projects.length===0){ alert('Önce bir proje ekleyin.'); return; }
+  fillProjectSelect();
+  document.getElementById('ntTitle').value='';
+  document.getElementById('ntCategory').value='Keşif Denetimi';
+  document.getElementById('ntPriority').value='Orta';
+  document.getElementById('ntDue').value=todayStr();
+  document.getElementById('ntImage').value='';
+  const prev = document.getElementById('ntImagePreview');
+  prev.src=''; prev.style.display='none';
+  overlayTask.classList.add('open');
+});
+document.getElementById('ntImage').addEventListener('change', async ()=>{
+  const file = document.getElementById('ntImage').files[0];
+  const prev = document.getElementById('ntImagePreview');
+  if(!file){ prev.style.display='none'; return; }
+  try{
+    const dataUrl = await resizeImage(file);
+    prev.src = dataUrl; prev.style.display='block';
+  }catch(e){ prev.style.display='none'; }
+});
+document.getElementById('ntCancel').addEventListener('click', ()=> overlayTask.classList.remove('open'));
+document.getElementById('ntSave').addEventListener('click', async ()=>{
+  const title = document.getElementById('ntTitle').value.trim();
+  if(!title){ alert('Görev adı gerekli.'); return; }
+  const previewSrc = document.getElementById('ntImagePreview').src;
+  const hasImage = previewSrc && previewSrc.startsWith('data:');
+  tasks.push({
+    id:uid(),
+    projectId:document.getElementById('ntProject').value,
+    title,
+    category:document.getElementById('ntCategory').value,
+    priority:document.getElementById('ntPriority').value,
+    due:document.getElementById('ntDue').value,
+    status:'Bekliyor',
+    image: hasImage ? previewSrc : null
+  });
+  await saveTasks();
+  overlayTask.classList.remove('open');
+  renderAll();
+});
+
+document.getElementById('filterStatus').addEventListener('change', renderTasks);
+document.getElementById('btnNewPhoto').addEventListener('click', ()=>{
+  if(projects.length===0){ alert('Önce bir proje ekleyin.'); return; }
+  const sel = document.getElementById('npPhotoProject');
+  sel.innerHTML = projects.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  if(selectedProjectId) sel.value = selectedProjectId;
+  document.getElementById('npPhotoDate').value = todayStr();
+  document.getElementById('npPhotoCaption').value = '';
+  document.getElementById('npPhotoFiles').value = '';
+  document.getElementById('npPhotoPreview').innerHTML = '';
+  overlayPhoto.classList.add('open');
+});
+document.getElementById('npPhotoFiles').addEventListener('change', async ()=>{
+  const files = Array.from(document.getElementById('npPhotoFiles').files);
+  const prevBox = document.getElementById('npPhotoPreview');
+  prevBox.innerHTML = '';
+  for(const file of files){
+    try{
+      const dataUrl = await resizeImage(file, 640, 0.65);
+      const img = document.createElement('img');
+      img.src = dataUrl; img.dataset.url = dataUrl;
+      prevBox.appendChild(img);
+    }catch(e){ /* skip unreadable file */ }
+  }
+});
+document.getElementById('npPhotoCancel').addEventListener('click', ()=> overlayPhoto.classList.remove('open'));
+document.getElementById('npPhotoSave').addEventListener('click', async ()=>{
+  const imgs = Array.from(document.getElementById('npPhotoPreview').querySelectorAll('img'));
+  if(imgs.length===0){ alert('En az bir fotoğraf seçin.'); return; }
+  const projectId = document.getElementById('npPhotoProject').value;
+  const date = document.getElementById('npPhotoDate').value || todayStr();
+  const caption = document.getElementById('npPhotoCaption').value.trim();
+  imgs.forEach(img=>{
+    siteImages.push({ id:uid(), projectId, date, caption, image: img.dataset.url });
+  });
+  await saveSiteImages();
+  overlayPhoto.classList.remove('open');
+  renderGallery();
+});
+document.getElementById('btnExport').addEventListener('click', exportBackup);
+document.getElementById('btnImport').addEventListener('click', ()=> document.getElementById('fileImport').click());
+document.getElementById('fileImport').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(file) importBackup(file);
+  e.target.value = '';
+});
+[overlayProject, overlayTask, overlayPhoto].forEach(ov=>{
+  ov.addEventListener('click', (e)=>{ if(e.target===ov) ov.classList.remove('open'); });
+});
+const lightbox = document.getElementById('lightbox');
+document.getElementById('lightboxClose').addEventListener('click', ()=> lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e)=>{ if(e.target===lightbox) lightbox.classList.remove('open'); });
+
+(async function init(){
+  await loadData();
+  renderAll();
+})();
+</script>
+</body>
+</html>
