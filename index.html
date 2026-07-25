@@ -349,8 +349,8 @@
     <div class="field"><label>Not (opsiyonel)</label><input id="ndCaption" placeholder="Örn: Sutek keşif dosyası v2"></div>
     <div class="field">
       <label>Dosyalar</label>
-      <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" id="ndFiles" multiple>
-      <div class="file-hint">PDF, Word veya Excel — her dosya en fazla 5MB, birden fazla seçilebilir.</div>
+      <input type="file" id="ndFiles" multiple>
+      <div class="file-hint">Her türlü dosya (PDF, Word, Excel, DWG, ZIP, resim vb.) — her dosya en fazla 5MB, birden fazla seçilebilir.</div>
       <div class="file-list-preview" id="ndFilesPreview"></div>
     </div>
     <div class="modal-actions">
@@ -808,6 +808,9 @@ function docTypeInfo(filename){
   if(ext==='pdf') return {cls:'pdf', label:'PDF'};
   if(ext==='doc' || ext==='docx') return {cls:'word', label:'DOC'};
   if(ext==='xls' || ext==='xlsx') return {cls:'excel', label:'XLS'};
+  if(ext==='dwg' || ext==='dxf') return {cls:'other', label:'CAD'};
+  if(ext==='zip' || ext==='rar' || ext==='7z') return {cls:'other', label:'ZIP'};
+  if(['jpg','jpeg','png','gif','webp'].includes(ext)) return {cls:'other', label:'IMG'};
   return {cls:'other', label:ext.toUpperCase().slice(0,4) || 'DOSYA'};
 }
 function formatBytes(bytes){
